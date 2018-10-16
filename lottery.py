@@ -1,7 +1,7 @@
 import sys
 import json
-import random
 import points
+import random
 
 
 file_text = 'lottery_info.json'
