@@ -6,7 +6,7 @@ import random
 
 file_text = 'lottery_info.json'
 init_val = 500
-max_ticket_number = 1000
+max_ticket_number = 5000
 
 
 def load_file() -> [dict]:
@@ -32,13 +32,9 @@ def get_tickets(user: [str]) -> [int]:
 	return tickets
 
 
-def ticket_exists_check(number: [int]) -> [bool]:
-# checks if a ticket exists in our db
+def get_remaining_tickets() -> [int]:
 	lottery_dict = load_file()
-	if str(number) in lottery_dict:
-		return True
-	else:
-		return False
+	return max_ticket_number - len(lottery_dict) + 1 # len(lottery_dict) while empty is 1 because of value
 
 
 def user_exists_check(user: [str]) -> [bool]:
@@ -50,9 +46,18 @@ def user_exists_check(user: [str]) -> [bool]:
 		return False
 
 
-def generate_ticket() -> [int]:
+def ticket_exists_check(number: [int], lottery_dict: [dict]) -> [bool]:
+# checks if a ticket exists in our db
+	# lottery_dict = load_file()
+	if str(number) in lottery_dict:
+		return True
+	else:
+		return False
+
+
+def generate_ticket(lottery_dict: [dict]) -> [int]:
 	ticket = random.randint(1, max_ticket_number)
-	while ticket_exists_check(ticket):
+	while ticket_exists_check(ticket, lottery_dict):
 		ticket = random.randint(1, max_ticket_number)
 	return ticket
 
@@ -61,9 +66,7 @@ def buy_ticket(user: [str], qty: [int]):
 # buys tickets for a user and increases lottery pot
 	lottery_dict = load_file()
 	for x in range(qty):
-		lottery_dict[generate_ticket()] = user
-		with open(file_text, 'w') as file:
-			json.dump(lottery_dict, file, indent=4)
+		lottery_dict[str(generate_ticket(lottery_dict))] = user
 	lottery_dict['value'] += qty * 5
 	with open(file_text, 'w') as file:
 		json.dump(lottery_dict, file, indent=4)
@@ -78,7 +81,6 @@ def draw() -> [str]:
 		points.add_points(winner, lottery_dict['value'])
 		return winner
 	else:
-		print('loser')
 		clean_tickets()
 		return ''
 

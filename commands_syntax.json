@@ -22,6 +22,12 @@
 	"beatbid": "Syntax for this command is: !beatbid <# of points>",
 	"beattopbid": "Syntax for this command is: !beattopbid <# of points>",
 	"beathighestbid": "Syntax for this command is: !beathighestbid <# of points>",
+	"buytickets": "Syntax for this command is: !buytickets <# of tickets>",
+	"buyticket": "Syntax for this command is: !buyticket <# of tickets>",
+	"buytix": "Syntax for this command is: !buytix <# of tickets>",
+	"tix": "Syntax for this command is !tix <user>",
+	"ticket": "Syntax for this command is !ticket <user>",
+	"tickets": "Syntax for this command is !tickets <user>",
 	"event": "Syntax for this command is: !event <event name>",
 	"spawnevent": "Syntax for this command is: !spawnevent <event name>",
 	"spawn": "Syntax for this command is: !spawn <event name>"

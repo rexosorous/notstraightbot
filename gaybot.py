@@ -593,7 +593,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
         elif cmd_whole in ['lottery', 'lotto', 'checklotto', 'checklottery']:
-            self.message('The lottery is at ' + format(lottery.get_value(), ',d') + ' points! Buy a ticket with !buytickets <qty> for 5 points each!')
+            self.message('The lottery is at ' + format(lottery.get_value(), ',d') + ' points! Buy a ticket with !buytickets <# of tickets> for 5 points each!')
 
 
         elif cmd in ['buytickets', 'buyticket', 'buytix']:
@@ -604,8 +604,11 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                     qty = int(arguments[1])
                     cost = qty * 5
                     if self.points_check(user, cost):
-                        lottery.buy_ticket(user, qty)
-                        self.message(user + ' now has ' + format(lottery.get_tickets(user), ',d') + ' lottery tickets.')
+                        if qty > lottery.get_remaining_tickets():
+                            self.message('There aren\'t enough tickets. There are only ' + format(lottery.get_remaining_tickets(), ',d') + ' tickets left. WutFace')
+                        else:
+                            lottery.buy_ticket(user, qty)
+                            self.message(user + ' now has ' + format(lottery.get_tickets(user), ',d') + ' lottery tickets.')
 
 
         elif cmd in ['tickets', 'ticket', 'tix']:
@@ -613,6 +616,8 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 username = user
             elif len(arguments) == 2:
                 username = word_fixer(arguments[1])
+            else:
+                syntax(cmd)
 
             if len(arguments) in [1, 2]:
                 if lottery.user_exists_check(username):
