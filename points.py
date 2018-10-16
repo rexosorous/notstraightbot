@@ -8,18 +8,14 @@ file_string = 'points_table.json'
 
 def load_file() -> [dict]:
 	with open(file_string) as file:
-		points_dict = json.load(file)
-	return points_dict
+		return = json.load(file)
 
 
 # checks if a user currently exists in points_table
 # returns true if they are and false if not
 def user_exists_check(user: [str]) -> [bool]:
 	points_dict = load_file()
-	if user in points_dict:
-		return True
-	elif user not in points_dict:
-		return False
+	return user in points_dict
 
 
 def add_user(user: [str]):
@@ -27,7 +23,6 @@ def add_user(user: [str]):
 	points_dict[user] = 0
 	with open (file_string, 'w') as file:
 		json.dump(points_dict, file, indent=4, sort_keys=True)
-	return
 
 
 def get_viewers() -> [str]:
@@ -48,9 +43,7 @@ def get_points(user: [str]) -> [int]:
 
 def get_bot() -> [tuple]:
 	points_dict = load_file()
-	bot_tuple = sorted(points_dict.items(), key=lambda kv: kv[1])
-	return bot_tuple
-
+	return sorted(points_dict.items(), key=lambda kv: kv[1])
 
 
 def update_points(usernames: [str]):
@@ -71,9 +64,6 @@ def update_points(usernames: [str]):
 	with open (file_string, 'w') as file:
 		json.dump(points_dict, file, indent=4, sort_keys=True)
 
-	return
-
-
 
 def add_points(user: [str], points: [int]):
 	points_dict = load_file()
@@ -86,7 +76,6 @@ def add_points(user: [str], points: [int]):
 		points_dict[user] += points
 	with open (file_string, 'w') as file:
 		json.dump(points_dict, file, indent=4, sort_keys=True)
-	return
 
 
 def mult_points(user: [str], multiplier: [int]):
@@ -100,7 +89,6 @@ def mult_points(user: [str], multiplier: [int]):
 		points_dict[user] *= multiplier
 	with open (file_string, 'w') as file:
 		json.dump(points_dict, file, indent=4, sort_keys=True)
-	return
 
 
 def div_points(user: [str], multiplier: [int]):
@@ -115,7 +103,6 @@ def div_points(user: [str], multiplier: [int]):
 
 	with open (file_string, 'w') as file:
 		json.dump(points_dict, file, indent=4, sort_keys=True)
-	return
 
 
 def set_points(user: [str], points: [int]):
@@ -129,8 +116,6 @@ def set_points(user: [str], points: [int]):
 		points_dict[user] = points
 	with open (file_string, 'w') as file:
 		json.dump(points_dict, file, indent=4, sort_keys=True)
-	return
-
 
 
 def donate_points(donator: [str], recipient: [str], value: [int]):
@@ -139,4 +124,3 @@ def donate_points(donator: [str], recipient: [str], value: [int]):
 	points_dict[recipient] += value
 	with open (file_string, 'w') as file:
 		json.dump(points_dict, file, indent=4, sort_keys=True)
-	return

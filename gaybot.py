@@ -55,13 +55,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         port = 6667
         print ('Connecting to ' + server + ' on port ' + str(port) + '...')
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port, 'oauth:'+token)], username, username)
-        
-
-
-
-
-
-
 
 
     def message(self, output: [str]):
@@ -114,7 +107,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 mystery_box.cleanup()
 
 
-
     def lottery_event(self):
         print ('[lottery] is being drawn')
         self.message('The winning lottery ticket will be drawn in 1 minute! Buy your tickets for 5 points with !buytickets <qty>.')
@@ -122,17 +114,15 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         winner = lottery.draw()
         self.message('The winning lottery ticket has been drawn and...')
         sleep(3)
-        if winner == '':
-            self.message('Nobody won the lottery PepeREE')
-            print ('[lottery] no winners')
-        else:
-            self.message(winner + ' won the lottery! You won ' + format(lottery.get_value(), ',d') + ' points, giving you ' + 
+        if winner:
+           self.message(winner + ' won the lottery! You won ' + format(lottery.get_value(), ',d') + ' points, giving you ' + 
                 format(points.get_points(winner), ',d') + ' points total! EZ Clap')
             lottery.cleanup()
             print ('[lottery] ' + winner + ' won the lottery')
-
-
-
+        else:
+            self.message('Nobody won the lottery PepeREE')
+            print ('[lottery] no winners')
+ 
 
     # checks if a user exists in our db
     def user_exists_check(self, user: [str]) -> [bool]:
@@ -186,8 +176,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     def user_balance(self, user: [str]) -> [str]:
         rstring = (user + ' now has ' + format(points.get_points(user), ',d') + ' points')
         return rstring
-
-
 
 
     def add_user(self, user: [str]) -> [bool]:
@@ -256,7 +244,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             cmd_whole = e.arguments[0][1:]
             print ('[' + e.source[:e.source.find('!')] + '] ' + cmd_whole)
             self.do_command(e, cmd_whole)
-        return
 
 
     def do_command(self, e, cmd_whole):
