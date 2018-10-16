@@ -116,6 +116,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
     def lottery_event(self):
+        print ('[lottery] is being drawn')
         self.message('The winning lottery ticket will be drawn in 1 minute! Buy your tickets for 5 points with !buytickets <qty>.')
         sleep(6)
         winner = lottery.draw()
@@ -123,10 +124,12 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         sleep(3)
         if winner == '':
             self.message('Nobody won the lottery PepeREE')
+            print ('[lottery] no winners')
         else:
             self.message(winner + ' won the lottery! You won ' + format(lottery.get_value(), ',d') + ' points, giving you ' + 
                 format(points.get_points(winner), ',d') + ' points total! EZ Clap')
             lottery.cleanup()
+            print ('[lottery] ' + winner + ' won the lottery')
 
 
 
