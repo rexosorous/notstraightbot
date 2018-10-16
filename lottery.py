@@ -11,8 +11,7 @@ max_ticket_number = 5000
 
 def load_file() -> [dict]:
 	with open(file_text) as file:
-		lottery_dict = json.load(file)
-	return lottery_dict
+		return json.load(file)
 
 
 def get_value() -> [int]:
@@ -40,19 +39,13 @@ def get_remaining_tickets() -> [int]:
 def user_exists_check(user: [str]) -> [bool]:
 	lottery_dict = load_file()
 	owners_list = lottery_dict.values()
-	if user in owners_list:
-		return True
-	else:
-		return False
+	return user in owners_list
 
 
 def ticket_exists_check(number: [int], lottery_dict: [dict]) -> [bool]:
 # checks if a ticket exists in our db
 	# lottery_dict = load_file()
-	if str(number) in lottery_dict:
-		return True
-	else:
-		return False
+	return str(number) in lottery_dict
 
 
 def generate_ticket(lottery_dict: [dict]) -> [int]:
@@ -82,7 +75,6 @@ def draw() -> [str]:
 		return winner
 	else:
 		clean_tickets()
-		return ''
 
 
 def clean_tickets():
