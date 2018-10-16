@@ -1,0 +1,20 @@
+help::common::&help
+helpdetailed::common::for more info on the bot and its commands visit: https://pastebin.com/tXQ2bfER
+admins::common::&admins
+newcommand::admin::&new
+deletecommand::admin::&delete
+points::common::&points
+addpoints::admin::&addpoints
+subpoints::admin::&subpoints
+multpoints::admin::&multpoints
+divpoints::admin::&divpoints
+setpoints::admin::&setpoints
+givepoints::common::&givepoints
+gamble::common::&gamble
+admingamble::admin::&admingamble
+bid::common::&bid
+beatbid::common::&bid
+topbid::common::&bid
+event::admin::&event
+bttvemotes::common::&bttvemotes
+weather::common::Interesting. The weather patterns here seem natural and not artificial. I wonder if the rings' environment systems are malfunctioning. Or if the designers wanted the installation to have inclement weather.
