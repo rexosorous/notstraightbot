@@ -6,10 +6,10 @@ import random
 import json
 from time import sleep
 
-# my own classes
+# my own libraries
+import points
 import mystery_box
 import lottery
-import points
 
 
 ############ TO DO #################
@@ -27,14 +27,9 @@ import points
 #   d. russian roulette
 #   e. don't pop the balloon
 # challenge
-# lottery - contains all the points lost to the lottery
-#   a. let users choose a number
-#   b. default to giving them a random number
-#   c. allow users to buy more than one ticket
 
 # REEDEM POINTS FOR
 # control music
-# messages appear in chat
 # text to speech
 
 
@@ -118,10 +113,10 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     def lottery_event(self):
         print ('[lottery] is being drawn')
         self.message('The winning lottery ticket will be drawn in 1 minute! Buy your tickets for 5 points with !buytickets <qty>.')
-        sleep(6)
+        sleep(60)
         winner = lottery.draw()
         self.message('The winning lottery ticket has been drawn and...')
-        sleep(3)
+        sleep(30)
         if winner == '':
             self.message('Nobody won the lottery PepeREE')
             print ('[lottery] no winners')
