@@ -27,14 +27,9 @@ import lottery
 #   d. russian roulette
 #   e. don't pop the balloon
 # challenge
-# lottery - contains all the points lost to the lottery
-#   a. let users choose a number
-#   b. default to giving them a random number
-#   c. allow users to buy more than one ticket
 
 # REEDEM POINTS FOR
 # control music
-# messages appear in chat
 # text to speech
 
 
@@ -110,19 +105,19 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     def lottery_event(self):
         print ('[lottery] is being drawn')
         self.message('The winning lottery ticket will be drawn in 1 minute! Buy your tickets for 5 points with !buytickets <qty>.')
-        sleep(6)
+        sleep(60)
         winner = lottery.draw()
         self.message('The winning lottery ticket has been drawn and...')
-        sleep(3)
-        if winner == '':
-            self.message('Nobody won the lottery PepeREE')
-            print ('[lottery] no winners')
-        else:
-            self.message(winner + ' won the lottery! You won ' + format(lottery.get_value(), ',d') + ' points, giving you ' + 
-        sleep(3)
+        sleep(30)
+        # if winner == '':
+        #     self.message('Nobody won the lottery PepeREE')
+        #     print ('[lottery] no winners')
+        # else:
+        #     self.message(winner + ' won the lottery! You won ' + format(lottery.get_value(), ',d') + ' points, giving you ' + 
+        # sleep(3)
         if winner:
-           self.message(winner + ' won the lottery! You won ' + format(lottery.get_value(), ',d') + ' points, giving you ' + 
-                format(points.get_points(winner), ',d') + ' points total! EZ Clap'))
+            self.message(winner + ' won the lottery! You won ' + format(lottery.get_value(), ',d') + ' points, giving you ' + 
+                format(points.get_points(winner), ',d') + ' points total! EZ Clap')
             lottery.cleanup()
             print ('[lottery] ' + winner + ' won the lottery')
         else:

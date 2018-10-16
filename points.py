@@ -8,7 +8,7 @@ file_string = 'points_table.json'
 
 def load_file() -> [dict]:
 	with open(file_string) as file:
-		return = json.load(file)
+		return json.load(file)
 
 
 # checks if a user currently exists in points_table
