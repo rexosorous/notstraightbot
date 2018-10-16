@@ -115,7 +115,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         #     self.message(winner + ' won the lottery! You won ' + format(lottery.get_value(), ',d') + ' points, giving you ' + 
         # sleep(3)
         if winner:
-			self.message(f'{winner} won the lottery! You won {lottery.get_value():,} points, giving you {points.get_points(winner):,} points total! EZ Clap')
+            self.message(f'{winner} won the lottery! You won {lottery.get_value():,} points, giving you {points.get_points(winner):,} points total! EZ Clap')
             lottery.cleanup()
             print (f'[lottery] {winner} won the lottery')
         else:
