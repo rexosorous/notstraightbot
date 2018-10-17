@@ -81,7 +81,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             sleep(20)
             self.message('10 seconds left to bid on the Mystery Points Box!')
             sleep(10)
-            mystery_box.despawn()
 
             if mystery_box.get_top_bidder() == '':
                 self.message('the box disappears, saddened that no one bid on it BibleThump')
