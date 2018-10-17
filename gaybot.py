@@ -123,7 +123,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
  
 
     # checks if a user exists in our db
-    def user_exists_check(self, user: str) -> bool]:
+    def user_exists_check(self, user: str) -> bool:
         if points.user_exists_check(user):
             return True
         else:
@@ -132,7 +132,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
     # checks for illegal numbers
-    def illegal_value_check(self, value: int) -> bool]:
+    def illegal_value_check(self, value: int) -> bool:
         clean = True
 
         try:
@@ -148,7 +148,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
     # checks if a user has enough points
-    def funds_check(self, user: str, value: int) -> bool]:
+    def funds_check(self, user: str, value: int) -> bool:
         if int(value) > points.get_points(user):
             self.message('you have insufficient funds')
             return False
@@ -161,7 +161,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     # a user exists in our database
     # a user has enough points to do an action
     # the points is not a negative number
-    def points_check(self, user: str, value: int) -> bool]:
+    def points_check(self, user: str, value: int) -> bool:
         if self.user_exists_check(user):
             if self.illegal_value_check(value):
                 if self.funds_check(user, value):
@@ -176,7 +176,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         return rstring
 
 
-    def add_user(self, user: str) -> bool]:
+    def add_user(self, user: str) -> bool:
         if not points.user_exists_check(user):
             chat = points.get_viewers()
             if user in chat and user not in points.bots:
