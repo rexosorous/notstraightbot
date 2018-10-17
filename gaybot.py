@@ -52,7 +52,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port, 'oauth:'+token)], username, username)
 
 
-    def message(self, output: [str]):
+    def message(self, output: str):
         self.connection.privmsg(self.channel, output)
 
    
@@ -123,7 +123,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
  
 
     # checks if a user exists in our db
-    def user_exists_check(self, user: [str]) -> [bool]:
+    def user_exists_check(self, user: str) -> bool]:
         if points.user_exists_check(user):
             return True
         else:
@@ -132,7 +132,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
     # checks for illegal numbers
-    def illegal_value_check(self, value: [int]) -> [bool]:
+    def illegal_value_check(self, value: int) -> bool]:
         clean = True
 
         try:
@@ -148,7 +148,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
     # checks if a user has enough points
-    def funds_check(self, user: [str], value: [int]) -> [bool]:
+    def funds_check(self, user: str, value: int) -> bool]:
         if int(value) > points.get_points(user):
             self.message('you have insufficient funds')
             return False
@@ -161,7 +161,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     # a user exists in our database
     # a user has enough points to do an action
     # the points is not a negative number
-    def points_check(self, user: [str], value: [int]) -> [bool]:
+    def points_check(self, user: str, value: int) -> bool]:
         if self.user_exists_check(user):
             if self.illegal_value_check(value):
                 if self.funds_check(user, value):
@@ -171,12 +171,12 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
     # returns a string with a user's current points value
-    def user_balance(self, user: [str]) -> [str]:
+    def user_balance(self, user: str) -> str:
         rstring = f'{user} now has {points.get_points(user):,} points'
         return rstring
 
 
-    def add_user(self, user: [str]) -> [bool]:
+    def add_user(self, user: str) -> bool]:
         if not points.user_exists_check(user):
             chat = points.get_viewers()
             if user in chat and user not in points.bots:
@@ -189,7 +189,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             return True
 
 
-    def syntax(self, cmd_whole: [str]):
+    def syntax(self, cmd_whole: str):
         with open('commands_syntax.json') as syntax_file:
             syntax_dict = json.load(syntax_file)
         self.message(syntax_dict[cmd_whole])
@@ -671,20 +671,20 @@ def update_points():
         sleep(15)
 
 
-def rng(min_value: [int], max_value: [int]) -> [int]:
+def rng(min_value: int, max_value: int) -> int:
     random.seed(None)
     return random.randint(min_value, max_value)
 
 
 
-def word_fixer(input: [str]) -> [str]:
+def word_fixer(input: str) -> str:
     if input[0] in ['!', '@']:
         return input[1:].lower()
     else:
         return input.lower()
 
 
-def get_commands_list() -> [list]:
+def get_commands_list() -> list:
     commands_file_string = 'commands.json'
 
     # common_commands_file is the file we'll store commands anyone can use and their functionalities
