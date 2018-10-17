@@ -12,6 +12,11 @@ def load_file() -> [dict]:
 		return json.load(file)
 
 
+def write_file(box_dict: [dict]):
+	with open(file_string, 'w') as file:
+		json.dump(box_dict, file, indent=4)
+
+
 def rng(min_value: [int], max_value: [int]) -> [int]:
     return int(numpy.random.gamma(2, 400))
 
@@ -24,8 +29,7 @@ def spawn():
 	}
 
 	box_dict["box_points"] = rng(0, 1000)
-	with open(file_string, 'w') as file:
-		json.dump(box_dict, file, indent=4)
+	write_file(box_dict)
 	print ('[box] spawned with ' + format(box_dict["box_points"], ',d') + ' points')
 
 
@@ -42,9 +46,7 @@ def bid(user: [str], bid: [int]):
 	box_dict["top_bidder"] = user
 	box_dict["top_bid"] = bid
 	points.add_points(box_dict["top_bidder"], box_dict["top_bid"] * -1)
-
-	with open(file_string, 'w') as file:
-		json.dump(box_dict, file, indent=4)
+	write_file(box_dict)
 
 
 def get_top_bidder() -> [str]:

@@ -106,7 +106,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         sleep(60)
         winner = lottery.draw()
         self.message('The winning lottery ticket has been drawn and...')
-        sleep(30)
+        sleep(3)
         # if winner == '':
         #     self.message('Nobody won the lottery PepeREE')
         #     print ('[lottery] no winners')
