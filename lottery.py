@@ -71,7 +71,7 @@ def draw() -> [str]:
 	lottery_dict = load_file()
 	if winning_ticket in lottery_dict:
 		winner = lottery_dict[winning_ticket]
-		points.add_points(winner, lottery_dict['value'])
+		points.change_points(winner, lottery_dict['value'], '+')
 		return winner
 	else:
 		clean_tickets()

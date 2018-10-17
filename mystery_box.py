@@ -42,10 +42,10 @@ def bid(user: [str], bid: [int]):
 	box_dict = load_file()
 
 	if box_dict["top_bidder"] != '':
-		points.add_points(box_dict["top_bidder"], box_dict["top_bid"])
+		points.change_points(box_dict["top_bidder"], box_dict["top_bid"], '+')
 	box_dict["top_bidder"] = user
 	box_dict["top_bid"] = bid
-	points.add_points(box_dict["top_bidder"], box_dict["top_bid"] * -1)
+	points.change_points(box_dict["top_bidder"], box_dict["top_bid"] * -1, '+')
 	write_file(box_dict)
 
 
