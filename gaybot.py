@@ -52,7 +52,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port, 'oauth:'+token)], username, username)
 
 
-    def message(self, output: [str]):
+    def message(self, output: str):
         self.connection.privmsg(self.channel, output)
 
    
@@ -91,7 +91,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 bid = mystery_box.get_top_bid()
                 box_points = mystery_box.get_box_points()
 
-                points.add_points(winner, box_points)
+                points.change_points(winner, box_points, '+')
 
                 self.message(f'{winner} has won the mystery box with a bid of {bid:,} points! Congratulations!')
                 self.message(f'The box contained {mystery_box.get_box_points():,} points! {winner} now has {points.get_points(winner):,} points.')
@@ -123,7 +123,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
  
 
     # checks if a user exists in our db
-    def user_exists_check(self, user: [str]) -> [bool]:
+    def user_exists_check(self, user: str) -> bool]:
         if points.user_exists_check(user):
             return True
         else:
@@ -132,7 +132,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
     # checks for illegal numbers
-    def illegal_value_check(self, value: [int]) -> [bool]:
+    def illegal_value_check(self, value: int) -> bool]:
         clean = True
 
         try:
@@ -148,7 +148,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
     # checks if a user has enough points
-    def funds_check(self, user: [str], value: [int]) -> [bool]:
+    def funds_check(self, user: str, value: int) -> bool]:
         if int(value) > points.get_points(user):
             self.message('you have insufficient funds')
             return False
@@ -161,7 +161,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     # a user exists in our database
     # a user has enough points to do an action
     # the points is not a negative number
-    def points_check(self, user: [str], value: [int]) -> [bool]:
+    def points_check(self, user: str, value: int) -> bool]:
         if self.user_exists_check(user):
             if self.illegal_value_check(value):
                 if self.funds_check(user, value):
@@ -171,15 +171,15 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
     # returns a string with a user's current points value
-    def user_balance(self, user: [str]) -> [str]:
+    def user_balance(self, user: str) -> str:
         rstring = f'{user} now has {points.get_points(user):,} points'
         return rstring
 
 
-    def add_user(self, user: [str]) -> [bool]:
+    def add_user(self, user: str) -> bool]:
         if not points.user_exists_check(user):
             chat = points.get_viewers()
-            if user in chat and user != 'skinnyseahorse' and user != 'notstraightbot':
+            if user in chat and user not in points.bots:
                 points.add_user(user)
                 return True
             else:
@@ -189,7 +189,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             return True
 
 
-    def syntax(self, cmd_whole: [str]):
+    def syntax(self, cmd_whole: str):
         with open('commands_syntax.json') as syntax_file:
             syntax_dict = json.load(syntax_file)
         self.message(syntax_dict[cmd_whole])
@@ -373,11 +373,11 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
                 try:
                     add = int(arguments[2])
-                    if username in ['everyone', 'everybody']:
-                        points.add_points(username, add)
+                    if username in points.everyone:
+                        points.change_points(username, add, '+')
                         self.message(f'everyone has been given {add:,} points! Kreygasm')                    
                     elif self.add_user(username):
-                        points.add_points(username, add)
+                        points.change_points(username, add, '+')
                         self.message(self.user_balance(username))
                 except ValueError:
                     self.message(arguments[2] + ' is not a number')                       
@@ -394,12 +394,12 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                         arguments[2] = points.get_points(username)
 
                 try:
-                    sub = int(arguments[2]) * -1
-                    if username in ['everyone', 'everybody']:
-                        points.add_points(username, sub)
+                    sub = int(arguments[2])
+                    if username in points.everyone:
+                        points.change_points(username, sub, '-')
                         self.message(f'everyone has lost {sub * -1:,} points. FeelsBadMan')            
                     elif self.add_user(username):
-                        points.add_points(username, sub)
+                        points.change_points(username, sub, '-')
                         self.message(self.user_balance(username))
                 except ValueError:
                     self.message(arguments[2] + ' is not a number')
@@ -413,7 +413,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
                 try:
                     value = int(arguments[2])
-                    if username in ['everyone', 'everybody']:
+                    if username in points.everyone:
                         points.set_points(username, value)
                         self.message(f'everyone has had their points reset to {value:,} points.')
                     elif self.add_user(username):
@@ -430,15 +430,15 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             else:
                 username = word_fixer(arguments[1])
 
-                if username in ['everyone', 'everybody']:
+                if username in points.everyone:
                     if self.illegal_value_check(arguments[2]):
                         multiplier = int(arguments[2])
-                        points.mult_points(username, multiplier)
+                        points.change_points(username, multiplier, '*')
                         self.message(f'everyone has had their points multiplied by {multiplier}! Kreygasm')
                 elif self.user_exists_check(username):
                     if self.illegal_value_check(arguments[2]):
                         multiplier = int(arguments[2])
-                        points.mult_points(username, multiplier)
+                        points.change_points(username, multiplier, '*')
                         self.message(self.user_balance(username))
 
 
@@ -449,15 +449,15 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             else:
                 username = word_fixer(arguments[1])
 
-                if username in ['everyone', 'everybody']:
+                if username in points.everyone:
                     if self.illegal_value_check(arguments[2]):
                         multiplier = int(arguments[2])
-                        points.div_points(username, multiplier)
+                        points.change_points(username, multiplier, '/')
                         self.message(f'everyone has had their points divided by {multiplier}. FeelsBadMan')
                 elif self.user_exists_check(username):
                     if self.illegal_value_check(arguments[2]):
                         multiplier = int(arguments[2])
-                        points.div_points(username, multiplier)
+                        points.change_points(username, multiplier, '/')
                         self.message(self.user_balance(username))
 
 
@@ -500,13 +500,13 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                     value = int(arguments[1])
                     result = rng(0, 100)
                     if result < 50:
-                        points.add_points(user, value * -1)
+                        points.change_points(user, value, '-')
                         self.message(f'{user} rolled a {result} and has lost {value:,} points! you now have {points.get_points(user):,} points.')
                     elif result > 50 and result < 100:
-                        points.add_points(user, value)
+                        points.change_points(user, value, '+')
                         self.message(f'{user} rolled a {result} and has won {value:,} points! you now have {points.get_points(user):,} points.')
                     elif result == 100:
-                        points.add_points(user, value * 2)
+                        points.change_points(user, value * 2, '+')
                         self.message(f'{user} rolled a {result}! JACKPOT! you have won {value * 2:,} points! you now have {points.get_points(user):,} points.')
                     elif result == 50:
                         self.message(f'{user} rolled a {result} and has tied! you have not won or lost any points.')
@@ -522,7 +522,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 if self.points_check(user, arguments[1]):
                     value = int(arguments[1])
                     result = 100
-                    points.add_points(user, value * 2)
+                    points.change_points(user, value * 2, '+')
                     self.message(f'{user} rolled a {result}! JACKPOT! you have won {value * 2:,} points! you now have {points.get_points(user):,} points.')
 
 
@@ -671,20 +671,20 @@ def update_points():
         sleep(15)
 
 
-def rng(min_value: [int], max_value: [int]) -> [int]:
+def rng(min_value: int, max_value: int) -> int:
     random.seed(None)
     return random.randint(min_value, max_value)
 
 
 
-def word_fixer(input: [str]) -> [str]:
+def word_fixer(input: str) -> str:
     if input[0] in ['!', '@']:
         return input[1:].lower()
     else:
         return input.lower()
 
 
-def get_commands_list() -> [list]:
+def get_commands_list() -> list:
     commands_file_string = 'commands.json'
 
     # common_commands_file is the file we'll store commands anyone can use and their functionalities
