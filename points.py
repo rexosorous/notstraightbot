@@ -50,7 +50,7 @@ def get_points(user: str) -> int:
 	return points_dict[user]
 
 
-def get_bot() -> tuple:
+def get_bot() -> list:
 	points_dict = load_file()
 	return sorted(points_dict.items(), key=lambda kv: kv[1])
 
