@@ -119,7 +119,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
 	def bomb_event(self):
-		if bomb_squad.is_alive():
+		if not bomb_squad.is_alive():
 			print ('[bomb] starting')
 			bomb_squad.start()
 			self.message('Calling all bomb squad technicians, there\'s a bomb at the orphanage! You\'ll have one minute to join this event with !bomb join')
@@ -624,24 +624,31 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 							else:
 								self.message('The bomb squad event is already in progress')
 					elif arg in ['cut', 'select', 'cutwire', 'selectwire']:
-						# after a player makes a cut, prompt the next user to go
 						if len(arguments) == 3:
-							# check if it's that player's turn
-							wire_num = word_fixer(arguments[2]) # we want to let users type !bomb cut #2
-							if illegal_value_check(wire_num):
-								wire_num = int(wire_num)
-								if wire_num in bomb_squad.get_avail_wires():
-									self.message(f'{user} cuts wire #{wire_num} and...')
-									sleep(3)
-									if bomb_squad.choose_wire(user, wire_num):
-										self.message(f'{user} lives! Clap')
+							if user == bomb_squad.get_active_player():
+								wire_num = word_fixer(arguments[2]) # we want to let users type !bomb cut #2
+								if illegal_value_check(wire_num):
+									wire_num = int(wire_num)
+									if wire_num in bomb_squad.get_avail_wires():
+										self.message(f'{user} cuts wire #{wire_num} and...')
+										sleep(3)
+										if bomb_squad.choose_wire(user, wire_num):
+											self.message(f'{user} lives! Clap')
+											bomb_squad.active_player_pos += 1
+											self.message(f'{bomb_squad.get_active_player()}, you\'re up next. Cut one of these wires with !bomb cut: {bomb_squad.get_avail_wires()}')
+											bomb_timeout(bomb_squad.get_active_player())
+										else:
+											self.message(f'{user} blew up the bomb! cmonBruh')
+											if not new_round():
+												self.message(f'{bomb_squad.get_players()} is the last man standing and won ') # figure out how many points to pay out
+												bomb_squad.cleanup()
+											else:
+												self.message(f'There\'s another bomb! {bomb_squad.get_active_player()}, you\'re up next. Cut one of these wires with !bomb cut: {bomb_squad.get_avail_wires()}')
+												bomb_timeout(bomb_squad.get_active_player())
 									else:
-										self.message(f'{user} blew up the bomb! cmonBruh')
-										if not new_round():
-											self.message(f'{bomb_squad.get_players()} is the last man standing and won ') # figure out how many points to pay out
-											bomb_squad.cleanup()
-								else:
-									self.message('That wire has already been cut.')
+										self.message('That wire has already been cut.')
+							else:
+								self.message(f'{user}, it\'s not your turn.')
 			else:
 				self.message('The bomb squad event hasn\'t started yet.') 
 
@@ -667,10 +674,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 					event_thread = threading.Thread(target=self.lottery_event)
 					event_thread.daemon = True
 					event_thread.start()
-
-
-		elif cmd == 'test':
-			commands.test()
 
 
 
@@ -741,6 +744,14 @@ def get_commands_list() -> list:
 	common_commands_file.close()
 
 	return common_commands_list
+
+
+def bomb_timeout(active_player: str)
+	bomb_thread = threading.Thread(target=self.bomb_timer, args=[active_player])
+	bomb_thread.daemon = True
+	bomb_thread.start()
+	# i can use queue module instead of writing to json files https://pymotw.com/2/Queue/
+	# so instead of having to write to json files to make sure all my threads are using the same data, i can use queues
 
 
 
