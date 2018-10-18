@@ -7,6 +7,8 @@ import points
 # UNRELATED NOTES bc i won't remember unless it's in here
 # users can guarantee a win on lottery by buying max tickets and they'll always make a profit, find some way to balance this
 # should it be possible for more than one event (not the same one) to happen at the same time?
+# make variable names consistent: events should have 'players' not 'users'
+# restructure event commands
 
 
 # it's late and i wanted to work on this, but i don't want to think too hard
@@ -33,42 +35,45 @@ import points
 #	2. preserve turn order (1, 2, 3 (3 loses) ---> 4, 1, 2)
 
 
+# at the start of the round, inform players of the turn order
+# inform players when it's their turn and which wires they can choose from
+
+
 file_string = 'bomb_info.json'
 
 
-def load_file() -> [dict]:
+def load_file() -> dict:
 	with open(file_string) as file:
 		return json.load(file)
 
 
-def write_file(bomb_dict: [dict]):
+def write_file(bomb_dict: dict):
 	with open(file_string, 'w') as file:
 		json.dump(bomb_dict, file, indent=4)
 
 
-def append_file(bomb_dict: [dict]):
+def append_file(bomb_dict: dict):
 	with open(file_string, 'a') as file:
 		json.dump(bomb_dict, file, indent=4)
 
 
-def rng(upper: [int]) -> [int]:
+def rng(upper: int) -> int:
 	# we'll never want to rng into wire 0 (since that's unintuitive for users)
 	return random.randint(1, upper)
 
 
-def join(user: [str]):
+def join(user: str):
 	temp_dict = {user: 0}
 	append_file(temp_dict)
 	# unsure if i can append a dict to my json. especially if a dict already exists in there
 
 
 def start():
-	bomb_dict = load_file()
-	temp_dict = {'bad_wire': rng(len(bomb_dict))}
-	append_file(temp_dict)
+	temp_dict = {'bad_wire': 0}
+	write_file(temp_dict)
 
 
-def choose_wire(user: [str], num: [int]) -> [bool]:
+def choose_wire(user: str, num: int) -> bool:
 	# returns true if user lived and false if user dieded
 	bomb_dict = load_file()
 	if num == bomb_dict['bad_wire']:
@@ -81,7 +86,7 @@ def choose_wire(user: [str], num: [int]) -> [bool]:
 		return True
 
 
-def new_round() -> [bool]:
+def new_round() -> bool:
 	# returns true if there will be a new round and false if only one user remains
 	bomb_dict = load_file()
 	if len(bomb_dict) == 2:
@@ -98,7 +103,12 @@ def cleanup():
 		os.remove(file_string)
 
 
-def get_avail_wires() -> [list]:
+def get_active_player() -> str:
+	# logic here
+	return
+
+
+def get_avail_wires() -> list:
 	bomb_dict = load_file()
 
 	# the second argument of range() is exclusive. so range(1, 10) produces numbers 1 - 9
@@ -115,13 +125,13 @@ def get_avail_wires() -> [list]:
 	return avail_wires
 
 
-def get_players() -> [list]:
+def get_players() -> list:
 	bomb_dict = load_file()
 	bomb_dict.pop('bad_wire')
 	return bomb_dict.keys()
 
 
-def get_idle(user: [str]) -> [int]:
+def get_idle(user: str) -> int:
 	# returns true if a player hasn't made a choice yet and vice-versa
 	bomb_dict = load_file()
 	if bomb_dict[user] == 0:
@@ -133,7 +143,15 @@ def get_idle(user: [str]) -> [int]:
 	# would the above work?
 
 
-def is_alive() -> [bool]:
+def is_alive() -> bool:
 	# can't think of a better function name right now
 	# this is mainly used to make sure that two instances of this event can't happen at the same time
 	return os.path.exists(file_string)
+
+
+def in_progress() -> bool:
+	bomb_dict = load_file()
+	if bomb_dict['value'] == 0:
+		return False
+	else:
+		return True
