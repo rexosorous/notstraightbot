@@ -10,11 +10,6 @@ import points
 # make variable names consistent: events should have 'players' not 'users'
 # find a way to split up !bomb commands
 
-
-# it's late and i wanted to work on this, but i don't want to think too hard
-# so anywhere it says 'unsure', it's because i didn't want to put the effort into figuring it out yet.
-# future me will figure it out
-
 # an irc remake of: https://www.youtube.com/watch?v=GXTRNSuC_YQ
 #
 # 1. inform users that bomb squad event will start soon
@@ -67,29 +62,40 @@ def start():
 	write_file(temp_dict)
 
 
-def choose_wire(user: str, num: int) -> bool:
-	# returns true if user lived and false if user dieded
+def choose_wire(player: str, num: int) -> str:
 	bomb_dict = load_file()
 	if num == bomb_dict['bad_wire']:
-		bomb_dict.pop(user)
+		bomb_dict.pop(player)
 		write_file(bomb_dict)
-		return False
+		if active_player_pos > len(bomb_dict) -1:
+			active_player_pos -= len(bomb_dict) -1
+		return f'{player} blew up the bomb! cmonBruh'
 	else:
-		bomb_dict[user] = num
+		bomb_dict[player] = num
 		write_file(bomb_dict)
-		return True
+		active_player_pos += 1
+		if active_player_pos > len(bomb_dict) - 1:
+			active_player_pos -= len(bomb_dict) -1
+		return f'{player} lives! Clap'
 
 
-def new_round() -> bool:
+def new_round() -> str:
 	# returns true if there will be a new round and false if only one user remains
 	bomb_dict = load_file()
 	if len(bomb_dict) == 2:
-		return False
+		winner = get_players[0]
+		points.change_points(winner, 300, '+')
+		return f'{winner} is the last man standing and has won 300 points!'
 	else:
 		bomb_dict = {x: 0 for x in bomb_dict} # resets all values to 0
 		bomb_dict['bad_wire'] = rng(len(bomb_dict) - 1)
 		write_file(bomb_dict)
-		return True
+		return f'{get_players[active_player_pos]}, you\'re up next. Cut one of these wires with !bomb cut: {bomb_squad.get_avail_wires()}'
+
+
+def elim_player(player: str):
+	bomb_dict = load_file()
+	choose_wire(player, bomb_dict['bad_wire'])
 
 
 def cleanup():

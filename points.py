@@ -80,19 +80,19 @@ def change_points(user: str, points: int, op: str):
            "*": operator.imul,
            "/": operator.ifloordiv}
 	points_dict = load_file()
-	if user in everybody:
+	if user in everyone:
 		usernames = get_viewers()
 		for x in usernames:
 			if x not in bots:
-				points_dict[x] = ops[str](points_dict[x], points)
+				points_dict[x] = ops[op](points_dict[x], points)
 	else:
-		points_dict[user] = ops[str](points_dict[user], points)
+		points_dict[user] = ops[op](points_dict[user], points)
 	write_file(points_dict)
 
 
 def set_points(user: str, points: int):
 	points_dict = load_file()
-	if user in everybody:
+	if user in everyone:
 		usernames = get_viewers()
 		for x in usernames:
 			if x not in bots:

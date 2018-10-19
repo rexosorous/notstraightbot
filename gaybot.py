@@ -4,6 +4,7 @@ import requests
 import threading
 import random
 import json
+import queue
 from time import sleep
 
 # my own libraries
@@ -11,7 +12,6 @@ import points
 import mystery_box
 import lottery
 import bomb_squad
-import commands
 
 
 ############ TO DO #################
@@ -33,6 +33,9 @@ import commands
 # REEDEM POINTS FOR
 # control music
 # text to speech
+
+
+bomb_q = queue.Queue()
 
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
@@ -128,6 +131,24 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 				print('[bomb] not enough players to start')
 				self.message('There aren\'t enough players to start the event.')
 				bomb_squad.cleanup()
+
+
+	def bomb_timer(self, active_player: str):
+		bomb_thread = threading.Thread(target=self.bomb_timeout, args=[active_player])
+		bomb_thread.daemon = True
+		bomb_thread.start()
+		# i can use queue module instead of writing to json files https://pymotw.com/2/Queue/
+		# so instead of having to write to json files to make sure all my threads are using the same data, i can use queues
+
+
+	def bomb_timeout(self, active_player: str):
+		# if after 15 seconds a player hasn't made a choice, eliminate them from the game
+		sleep(15)
+		try:
+			temp = bomb_q.get()
+		except Queue.Empty:
+			self.message(f'{active_player}, you waited too long and the bomb blew up on you!')
+			bomb_squad.elim_player(active_player)
 
  
 
@@ -558,7 +579,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 			else:
 				if self.points_check(user, arguments[1]):
 					value = int(arguments[1]) + mystery_box.get_top_bid()
-					if self.funds_check(value):
+					if self.funds_check(user, value):
 						mystery_box.bid(user, value)
 						self.message(f'{mystery_box.get_top_bidder()} now has the highest bid with {mystery_box.get_top_bid():,} points!')
 
@@ -611,46 +632,93 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 					self.message(f'{username} has 0 lottery tickets.')
 
 
-		elif cmd in ['bomb', 'bombsquad']:
+		elif cmd_whole in ['bomb', 'bombsquad']:
 			if bomb_squad.is_alive():
 				if len(arguments) == 1:
 					self.message(f'Remaining players: {bomb_squad.get_players()}')
-				else:
+				elif len(arguments) == 2:
 					arg = word_fixer(arguments[1])
-					if arg == 'join':
-						if len(arguments) == 2:
-							if not bomb_squad.in_progress():
-								bomb_squad.join(user)
-							else:
-								self.message('The bomb squad event is already in progress')
-					elif arg in ['cut', 'select', 'cutwire', 'selectwire']:
-						if len(arguments) == 3:
-							if user == bomb_squad.get_active_player():
-								wire_num = word_fixer(arguments[2]) # we want to let users type !bomb cut #2
-								if illegal_value_check(wire_num):
-									wire_num = int(wire_num)
-									if wire_num in bomb_squad.get_avail_wires():
-										self.message(f'{user} cuts wire #{wire_num} and...')
-										sleep(3)
-										if bomb_squad.choose_wire(user, wire_num):
-											self.message(f'{user} lives! Clap')
-											bomb_squad.active_player_pos += 1
-											self.message(f'{bomb_squad.get_active_player()}, you\'re up next. Cut one of these wires with !bomb cut: {bomb_squad.get_avail_wires()}')
-											bomb_timeout(bomb_squad.get_active_player())
-										else:
-											self.message(f'{user} blew up the bomb! cmonBruh')
-											if not new_round():
-												self.message(f'{bomb_squad.get_players()} is the last man standing and won ') # figure out how many points to pay out
-												bomb_squad.cleanup()
-											else:
-												self.message(f'There\'s another bomb! {bomb_squad.get_active_player()}, you\'re up next. Cut one of these wires with !bomb cut: {bomb_squad.get_avail_wires()}')
-												bomb_timeout(bomb_squad.get_active_player())
-									else:
-										self.message('That wire has already been cut.')
-							else:
-								self.message(f'{user}, it\'s not your turn.')
+					if arg =='join':
+						if not bomb_squad.in_progress():
+							bomb_squad.join(user)
+							self.message(f'{user} has joined the bomb squad event')
+						else:
+							self.message('The bomb squad event has already started.')
+
 			else:
 				self.message('The bomb squad event hasn\'t started yet.') 
+
+
+		elif cmd in ['cut', 'cutwire']:
+			if len(arguments) == 2:
+				if user == bomb_squad.get_active_player():
+					wire_num = word_fixer(arguments[2])
+					if illegal_value_check(wire_num):
+						wire_num = int(wire_num)
+						if wire_num in bomb_squad.get_avail_wires():
+							self.message(f'{user} cuts wire #{wire_num} and...')
+							sleep(3)
+							self.message(bomb_squad.choose_wire(user, wire_num))
+						else:
+							self.message('You can\'t cut that wire.')
+				else:
+					self.message(f'It\'s {bomb_squad.get_active_player()}\'s turn, not yours.')
+			else:
+				syntax(cmd)
+
+
+
+
+
+
+
+
+
+
+
+
+			# else:
+			# 		arg = word_fixer(arguments[1])
+			# 		if arg == 'join':
+			# 			if len(arguments) == 2:
+			# 				if not bomb_squad.in_progress():
+			# 					bomb_squad.join(user)
+			# 				else:
+			# 					self.message('The bomb squad event is already in progress')
+			# 		elif arg in ['cut', 'select', 'cutwire', 'selectwire']:
+			# 			if len(arguments) == 3:
+			# 				if user == bomb_squad.get_active_player():
+			# 					wire_num = word_fixer(arguments[2]) # we want to let users type !bomb cut #2
+			# 					if illegal_value_check(wire_num):
+			# 						wire_num = int(wire_num)
+			# 						if wire_num in bomb_squad.get_avail_wires():
+			# 							self.message(f'{user} cuts wire #{wire_num} and...')
+			# 							sleep(3)
+			# 							if bomb_squad.choose_wire(user, wire_num):
+			# 								self.message(f'{user} lives! Clap')
+			# 								self.message(f'{bomb_squad.get_active_player()}, you\'re up next. Cut one of these wires with !bomb cut: {bomb_squad.get_avail_wires()}')
+			# 								bomb_timeout(bomb_squad.get_active_player())
+			# 							else:
+			# 								self.message(f'{user} blew up the bomb! cmonBruh')
+			# 								if not new_round():
+			# 									self.message(f'{bomb_squad.get_players()} is the last man standing and won ') # figure out how many points to pay out
+			# 									bomb_squad.cleanup()
+			# 								else:
+			# 									self.message(f'There\'s another bomb! {bomb_squad.get_active_player()}, you\'re up next. Cut one of these wires with !bomb cut: {bomb_squad.get_avail_wires()}')
+			# 									bomb_timeout(bomb_squad.get_active_player())
+			# 						else:
+			# 							self.message('That wire has already been cut.')
+			# 				else:
+			# 					self.message(f'{user}, it\'s not your turn.')
+
+
+
+
+
+
+
+
+
 
 
 
@@ -744,15 +812,6 @@ def get_commands_list() -> list:
 	common_commands_file.close()
 
 	return common_commands_list
-
-
-def bomb_timeout(active_player: str)
-	bomb_thread = threading.Thread(target=self.bomb_timer, args=[active_player])
-	bomb_thread.daemon = True
-	bomb_thread.start()
-	# i can use queue module instead of writing to json files https://pymotw.com/2/Queue/
-	# so instead of having to write to json files to make sure all my threads are using the same data, i can use queues
-
 
 
 def main():
