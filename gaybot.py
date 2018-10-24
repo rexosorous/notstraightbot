@@ -274,6 +274,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 	def do_command(self, e, cmd_whole):
 		admins = {'gay_zach', 'hwangbroxd'}
+		blacklist = util.load_file('blacklist.json')
 
 		cmd_whole = cmd_whole.lower()
 		arguments = cmd_whole.split(' ')
@@ -283,6 +284,10 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 		############ SPECIAL COMMANDS ###################
 		# list all the commands
+		if user in blacklist:
+			self.message(f'{user} is banned from this bot')
+			return
+
 		if cmd_whole in ['help', 'commands', 'commandslist']:
 			help_list = []
 			output_string = 'Commoner available commands: '
@@ -333,6 +338,33 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 					print(f'{user} created {new_name} command.')
 					self.message(f'Successfully created {new_name} command')
 					common_commands_file_write.close()
+
+
+		elif cmd == 'ban':
+			if len(arguments) != 2:
+				self.syntax(cmd)
+			else:
+				target = word_fixer(arguments[1])
+				blacklist = util.load_file('blacklist.json')
+				if target in blacklist:
+					self.message('that user is already banned')
+				else:
+					blacklist.append(target)
+					points.remove_user(target)
+					self.message(f'{target} has been banned from the bot')
+				util.write_file('blacklist.json', blacklist)
+
+		elif cmd == 'unban':
+			if len(arguments) != 2:
+				self.sytnax(cmd)
+			else:
+				target = word_fixer(arguments[1])
+				blacklist = util.load_file('blacklist.json')
+				if target not in blacklist:
+					self.message('that user was not already banned')
+				else:
+					blacklist.remove(target)
+					self.message(f'{target} has been unbanned from the bot')
 
 
 		#remove commands

@@ -1,17 +1,15 @@
 import sys
 import json
-import points
 import random
 
+import points
+import utilities as util
 
-file_text = 'lottery_info.json'
+
+file_string = 'lottery_info.json'
 init_val = 500
 max_ticket_number = 5000
 
-
-def load_file() -> dict:
-	with open(file_text) as file:
-		return json.load(file)
 
 
 def get_value() -> int:
@@ -22,7 +20,7 @@ def get_value() -> int:
 
 def get_tickets(user: str) -> int:
 # returns the number of tickets owned by a user
-	lottery_dict = load_file()
+	lottery_dict = util.load_file(file_string)
 	owners_list = list(lottery_dict.values())
 	tickets = 0
 	for x in range(len(owners_list)):
@@ -32,12 +30,12 @@ def get_tickets(user: str) -> int:
 
 
 def get_remaining_tickets() -> int:
-	lottery_dict = load_file()
+	lottery_dict = util.load_file(file_string)
 	return max_ticket_number - len(lottery_dict) + 1 # len(lottery_dict) while empty is 1 because of value
 
 
 def user_exists_check(user: str) -> bool:
-	lottery_dict = load_file()
+	lottery_dict = util.load_file(file_string)
 	owners_list = lottery_dict.values()
 	return user in owners_list
 
@@ -57,18 +55,17 @@ def generate_ticket(lottery_dict: dict) -> int:
 
 def buy_ticket(user: str, qty: int):
 # buys tickets for a user and increases lottery pot
-	lottery_dict = load_file()
+	lottery_dict = util.load_file(file_string)
 	for x in range(qty):
 		lottery_dict[str(generate_ticket(lottery_dict))] = user
 	lottery_dict['value'] += qty * 5
-	with open(file_text, 'w') as file:
-		json.dump(lottery_dict, file, indent=4)
+	util.write_file(file_string, lottery_dict)
 
 
 def draw() -> str:
 # json stores the tickets as strings instead of ints
 	winning_ticket = str(random.randint(1, max_ticket_number))
-	lottery_dict = load_file()
+	lottery_dict = util.load_file(file_string)
 	if winning_ticket in lottery_dict:
 		winner = lottery_dict[winning_ticket]
 		points.change_points(winner, lottery_dict['value'], '+')
@@ -79,15 +76,13 @@ def draw() -> str:
 
 def clean_tickets():
 # clears all the tickets after a draw
-	lottery_dict = load_file()
+	lottery_dict = util.load_file(file_string)
 	lottery_value = lottery_dict['value']
 	new_dict = {'value': lottery_value}
-	with open(file_text, 'w') as file:
-		json.dump(new_dict, file, indent=4)
+	util.write_file(file_string, new_dict)
 
 
 def cleanup():
 # starts a new lottery after a win
 	new_dict = {'value': init_val}
-	with open(file_text, 'w') as file:
-		json.dump(new_dict, file, indent=4)
+	util.write_file(file_string, new_dict)
