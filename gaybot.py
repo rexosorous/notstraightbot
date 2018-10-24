@@ -12,10 +12,12 @@ import points
 import mystery_box
 import lottery
 import bomb_squad
+import utilities as util
 
 
 ############ TO DO #################
 
+# learn about classes so i don't have to keep loading json files
 
 # Poll
 # play (youtube link to song)
@@ -40,6 +42,8 @@ bomb_q = queue.Queue()
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
 	def __init__(self, username, client_id, token, channel):
+		self.blacklist = util.load_file('blacklist.json')
+
 		self.client_id = client_id
 		self.token = token
 		self.channel = '#' + channel
@@ -59,6 +63,13 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 	def message(self, output: str):
 		self.connection.privmsg(self.channel, output)
+
+
+	def update_points(self):
+		while True:
+			points.update_points([x for x in get_viewers() if x not in self.blacklist])
+			sleep(15)
+
 
    
 	def event_timer(self):
@@ -205,13 +216,16 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
 	def add_user(self, user: str) -> bool:
+		if user in self.blacklist:
+			self.message(f'{user} is banned from this bot.')
+			return
 		if not points.user_exists_check(user):
-			chat = points.get_viewers()
-			if user in chat and user not in points.bots:
+			chat = get_viewers()
+			if user in chat:
 				points.add_user(user)
 				return True
 			else:
-				self.message(f'{user} is not in chat')
+				self.message(f'{user} is not in chat.')
 				return False
 		else:
 			return True
@@ -259,13 +273,19 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 		self.message('bot is live')
 
+		points_thread = threading.Thread(target=self.update_points)
+		points_thread.daemon = True
+		points_thread.start()
+
 		event_thread = threading.Thread(target=self.event_timer)
 		event_thread.daemon = True
 		event_thread.start()
 
+
 	def on_pubmsg(self, c, e):
 
 		# If a chat message starts with an exclamation point, try to run it as a command
+		print(e)
 		if e.arguments[0][:1] == '!':
 			cmd_whole = e.arguments[0][1:]
 			print ('[' + e.source[:e.source.find('!')] + '] ' + cmd_whole)
@@ -274,8 +294,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 	def do_command(self, e, cmd_whole):
 		admins = {'gay_zach', 'hwangbroxd'}
-		blacklist = util.load_file('blacklist.json')
-
 		cmd_whole = cmd_whole.lower()
 		arguments = cmd_whole.split(' ')
 		cmd = arguments[0]
@@ -284,7 +302,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 		############ SPECIAL COMMANDS ###################
 		# list all the commands
-		if user in blacklist:
+		if user in self.blacklist:
 			self.message(f'{user} is banned from this bot')
 			return
 
@@ -340,33 +358,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 					common_commands_file_write.close()
 
 
-		elif cmd == 'ban':
-			if len(arguments) != 2:
-				self.syntax(cmd)
-			else:
-				target = word_fixer(arguments[1])
-				blacklist = util.load_file('blacklist.json')
-				if target in blacklist:
-					self.message('that user is already banned')
-				else:
-					blacklist.append(target)
-					points.remove_user(target)
-					self.message(f'{target} has been banned from the bot')
-				util.write_file('blacklist.json', blacklist)
-
-		elif cmd == 'unban':
-			if len(arguments) != 2:
-				self.sytnax(cmd)
-			else:
-				target = word_fixer(arguments[1])
-				blacklist = util.load_file('blacklist.json')
-				if target not in blacklist:
-					self.message('that user was not already banned')
-				else:
-					blacklist.remove(target)
-					self.message(f'{target} has been unbanned from the bot')
-
-
 		#remove commands
 		elif cmd in ['deletecommand', 'removecommand'] and user in admins:
 			# make sure the command has the correct syntax
@@ -396,6 +387,33 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 						self.message(f'Successfully deleted {name} command')
 				else:
 					self.message(f'{name} command does not exist')
+
+
+		elif cmd == 'ban' and user in admins:
+			if len(arguments) != 2:
+				self.syntax(cmd)
+			else:
+				target = word_fixer(arguments[1])
+				if target not in admins:
+					if target in self.blacklist:
+						self.message('that user is already banned')
+					else:
+						self.blacklist.append(target)
+						points.remove_user(target)
+						util.write_file('blacklist.json', self.blacklist)
+						self.message(f'{target} has been banned from this bot')
+
+		elif cmd == 'unban' and user in admins:
+			if len(arguments) != 2:
+				self.sytnax(cmd)
+			else:
+				target = word_fixer(arguments[1])
+				if target not in self.blacklist:
+					self.message('that user was not already banned')
+				else:
+					self.blacklist.remove(target)
+					util.write_file('blacklist.json', self.blacklist)
+					self.message(f'{target} has been unbanned from this bot')
 
 
 
@@ -809,10 +827,16 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
 
-def update_points():
-	while True:
-		points.update_points(points.get_viewers())
-		sleep(15)
+
+def get_viewers() -> str:
+	url = r'https://tmi.twitch.tv/group/user/gay_zach/chatters'
+	names = requests.get(url).json()
+
+	# avoid getting timed out
+	sleep(0.5)
+
+	# formatted string
+	return names['chatters']['viewers'] + names['chatters']['moderators']
 
 
 def rng(min_value: int, max_value: int) -> int:
@@ -861,12 +885,11 @@ def main():
 	token = 'o46q25lvzkat7ifntm8ndv9urbsjra'
 	channel = 'gay_zach'
 
-	points_thread = threading.Thread(target=update_points)
-	points_thread.daemon = True
-	points_thread.start()
-
-	bot = TwitchBot(username, client_id, token, channel)
-	bot.start()
+	try:
+		bot = TwitchBot(username, client_id, token, channel)
+		bot.start()
+	except KeyboardInterrupt:
+		bot.message('bot has committed honorable sudoku')
 
 if __name__ == "__main__":
 	main()

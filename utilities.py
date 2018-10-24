@@ -6,4 +6,4 @@ def load_file(file_name: str) -> dict:
 
 def write_file(file_name: str, rewrite):
 	with open(file_name, 'w') as file:
-		json.dump(input, rewrite, indent=4)
+		json.dump(rewrite, file, indent=4)

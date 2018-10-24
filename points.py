@@ -10,12 +10,11 @@ file_string = 'points_table.json'
 
 everyone = ['everybody', 'everyone', 'all']
 admins = ['gay_zach', 'hwangbroxd']
-blacklist = util.load_file('blacklist.json')
 
 
-# checks if a user currently exists in points_table
-# returns true if they are and false if not
 def user_exists_check(user: str) -> bool:
+	# checks if a user currently exists in points_table
+	# returns true if they are and false if not
 	points_dict = util.load_file(file_string)
 	return user in points_dict
 
@@ -28,19 +27,8 @@ def add_user(user: str):
 
 def remove_user(user: str):
 	points_dict = util.load_file(file_string)
-	points_dict.pop(user)
+	points_dict.pop(user, None)
 	util.write_file(file_string, points_dict)
-
-
-def get_viewers() -> str:
-	url = r'https://tmi.twitch.tv/group/user/gay_zach/chatters'
-	names = requests.get(url).json()
-
-	# avoid getting timed out
-	sleep(0.5)
-
-	# formatted string
-	return names['chatters']['viewers'] + names['chatters']['moderators']
 
 
 def get_points(user: str) -> int:
@@ -61,13 +49,12 @@ def update_points(usernames: str):
 
 		# check if there is a new user in chat, then give everyone points
 	for user in usernames:
-		if user not in blacklist:
-			if user not in points_dict:
-				points_dict[user] = 100
-			elif user in admins:
-				points_dict[user] += 3
-			else:
-				points_dict[user] += 1
+		if user not in points_dict:
+			points_dict[user] = 100
+		elif user in admins:
+			points_dict[user] += 3
+		else:
+			points_dict[user] += 1
 	util.write_file(file_string, points_dict)
 
 
@@ -81,8 +68,7 @@ def change_points(user: str, points: int, op: str):
 	if user in everyone:
 		usernames = get_viewers()
 		for x in usernames:
-			if x not in blacklist:
-				points_dict[x] = ops[op](points_dict[x], points)
+			points_dict[x] = ops[op](points_dict[x], points)
 	else:
 		points_dict[user] = ops[op](points_dict[user], points)
 	util.write_file(file_string, points_dict)
@@ -93,8 +79,7 @@ def set_points(user: str, points: int):
 	if user in everyone:
 		usernames = get_viewers()
 		for x in usernames:
-			if x not in blacklist:
-				points_dict[x] = points
+			points_dict[x] = points
 	else:
 		points_dict[user] = points
 	util.write_file(file_string, points_dict)

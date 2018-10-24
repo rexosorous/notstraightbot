@@ -30,5 +30,7 @@
 	"tickets": "Syntax for this command is !tickets <user>",
 	"event": "Syntax for this command is: !event <event name>",
 	"spawnevent": "Syntax for this command is: !spawnevent <event name>",
-	"spawn": "Syntax for this command is: !spawn <event name>"
+	"spawn": "Syntax for this command is: !spawn <event name>",
+	"ban": "Syntax for this command is: !ban <user>",
+	"unban": "Syntax for this command is: !unban <user>"
 }
