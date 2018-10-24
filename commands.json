@@ -3,6 +3,8 @@ helpdetailed::common::for more info on the bot and its commands visit: https://p
 admins::common::&admins
 newcommand::admin::&new
 deletecommand::admin::&delete
+ban::admin::&ban
+unban::admin::&unban
 points::common::&points
 addpoints::admin::&addpoints
 subpoints::admin::&subpoints

@@ -285,7 +285,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 	def on_pubmsg(self, c, e):
 
 		# If a chat message starts with an exclamation point, try to run it as a command
-		print(e)
 		if e.arguments[0][:1] == '!':
 			cmd_whole = e.arguments[0][1:]
 			print ('[' + e.source[:e.source.find('!')] + '] ' + cmd_whole)
