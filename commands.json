@@ -1,6 +1,7 @@
 help::common::&help
 helpdetailed::common::for more info on the bot and its commands visit: https://pastebin.com/tXQ2bfER
 admins::common::&admins
+discord::common::join the discord server! https://discord.gg/f4bzBXJ
 newcommand::admin::&new
 deletecommand::admin::&delete
 ban::admin::&ban
