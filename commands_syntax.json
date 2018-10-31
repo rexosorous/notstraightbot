@@ -32,5 +32,7 @@
 	"spawnevent": "Syntax for this command is: !spawnevent <event name>",
 	"spawn": "Syntax for this command is: !spawn <event name>",
 	"ban": "Syntax for this command is: !ban <user>",
-	"unban": "Syntax for this command is: !unban <user>"
+	"unban": "Syntax for this command is: !unban <user>",
+	"redeem": "Syntax for this command is: !redeem <reward>",
+	"redeempoints": "Syntax for this command is: !redeem <reward>"
 }

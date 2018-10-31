@@ -13,6 +13,7 @@ import mystery_box
 import lottery
 import bomb_squad
 import utilities as util
+import redeem
 
 
 ############ TO DO #################
@@ -191,7 +192,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 		if int(value) > points.get_points(user):
 			self.message('you have insufficient funds')
 			return False
-
 		else:
 			return True
 
@@ -791,6 +791,51 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 					event_thread = threading.Thread(target=self.lottery_event)
 					event_thread.daemon = True
 					event_thread.start()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		########################### REDEEM POINTS #########################
+		elif cmd in ['redeem', 'redeempoints']:
+			rewards = ['dejavu', '90s', 'gas', 'spacejam', 'countryroads', 'fitnessgram']
+			if len(arguments) != 2:
+				self.message('Syntax for that command is: !redeem <reward>. Type \"!redeem help\" for more info')
+			else:
+				arg = arguments[1]
+				if arg == 'help':
+					rewards_list = ', '.join(rewards)
+					self.message(f'rewards cost 1000 points each. here is a list of all the rewards: {rewards_list}')
+				elif arg in rewards:
+					if self.funds_check(user, 1000):
+						points.change_points(user, 1000, '-')
+						redeem_thread = threading.Thread(target=redeem.play_sound, args=(arg,))
+						redeem_thread.daemon = True
+						redeem_thread.start()
+
+
+
+
+
+
+
+
+
+
 
 
 

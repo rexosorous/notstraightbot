@@ -23,4 +23,5 @@ buytickets::common::&buytickets
 tickets::common::&tickets
 event::admin::&event
 bttvemotes::common::&bttvemotes
+redeem::common::&redeem
 weather::common::Interesting. The weather patterns here seem natural and not artificial. I wonder if the rings' environment systems are malfunctioning. Or if the designers wanted the installation to have inclement weather.
