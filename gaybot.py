@@ -1,4 +1,3 @@
-import sys
 import irc.bot
 import requests
 import threading
@@ -36,6 +35,8 @@ import redeem
 # REEDEM POINTS FOR
 # control music
 # text to speech
+# ideas for more sound effects:
+#	jump scare
 
 
 bomb_q = queue.Queue()
@@ -812,7 +813,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 		########################### REDEEM POINTS #########################
 		elif cmd in ['redeem', 'redeempoints']:
-			rewards = ['dejavu', '90s', 'gas', 'spacejam', 'countryroads', 'fitnessgram']
+			rewards = ['dejavu', '90s', 'gas', 'spacejam', 'countryroads', 'fitnessgram', 'skeleton', 'victoryell', 'jumpscare']
 			if len(arguments) != 2:
 				self.message('Syntax for that command is: !redeem <reward>. Type \"!redeem help\" for more info')
 			else:
@@ -820,7 +821,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 				if arg == 'help':
 					rewards_list = ', '.join(rewards)
 					self.message(f'rewards cost 1000 points each. here is a list of all the rewards: {rewards_list}')
-				elif arg in rewards:
 					if self.funds_check(user, 1000):
 						points.change_points(user, 1000, '-')
 						redeem_thread = threading.Thread(target=redeem.play_sound, args=(arg,))

@@ -1,4 +1,3 @@
-import sys
 import requests
 import json
 import operator
@@ -42,7 +41,7 @@ def get_bot() -> list:
 	return sorted(points_dict.items(), key=lambda kv: kv[1])
 
 
-def update_points(usernames: str):
+def update_points(usernames: [str]):
 	# reads points_table.json as points_dict
 	# edit points_dict for everyone's points
 	# re-write points_table.json with edited points_dict
