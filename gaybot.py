@@ -4,19 +4,18 @@ import requests
 import threading
 import json
 import queue
-import os
 from time import sleep
 
 # my own libraries
 import points
 import utilities as util
 import redeem
+import test
 
 # placed all the event modules in their own folder
-sys.path.append(os.path.join(sys.path[0],'events')) # let's me import modules from a relative path
-import mystery_box
-import lottery
-import bomb_squad
+import events.mystery_box
+import events.lottery
+import events.bomb_squad
 
 
 
