@@ -4,6 +4,7 @@ import threading
 import random
 import json
 import queue
+import os
 from time import sleep
 
 # my own libraries
@@ -75,10 +76,10 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
    
 	def event_timer(self):
-		time_min = 30 # in minutes
-		time_max = 45 # in minutes
+		time_min = 15 # in minutes
+		time_max = 30 # in minutes
 		while True:
-			sleep(rng(time_min * 60, time_max * 60))
+			sleep(rng(time_min * 60, time_max * 60)) # sleep(x) sleeps for x seconds
 			event_number = rng(1, 2)
 			if event_number == 1:
 				self.mystery_box_event()
@@ -813,7 +814,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 		########################### REDEEM POINTS #########################
 		elif cmd in ['redeem', 'redeempoints']:
-			rewards = ['dejavu', '90s', 'gas', 'spacejam', 'countryroads', 'fitnessgram', 'skeleton', 'victoryell', 'jumpscare']
+			rewards = ['dejavu', '90s', 'gas', 'spacejam', 'countryroads', 'fitnessgram', 'skeleton', 'victoryell']
 			if len(arguments) != 2:
 				self.message('Syntax for that command is: !redeem <reward>. Type \"!redeem help\" for more info')
 			else:
@@ -821,6 +822,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 				if arg == 'help':
 					rewards_list = ', '.join(rewards)
 					self.message(f'rewards cost 1000 points each. here is a list of all the rewards: {rewards_list}')
+				else:
 					if self.funds_check(user, 1000):
 						points.change_points(user, 1000, '-')
 						redeem_thread = threading.Thread(target=redeem.play_sound, args=(arg,))
@@ -928,6 +930,9 @@ def main():
 	client_id = 'idgnrmfdwlmb2b4wldetuzewc6s1kd'
 	token = 'o46q25lvzkat7ifntm8ndv9urbsjra'
 	channel = 'gay_zach'
+
+	if os.path.exists('box_info.json'):
+		os.remove('box_info.json')
 
 	try:
 		bot = TwitchBot(username, client_id, token, channel)

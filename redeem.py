@@ -1,5 +1,4 @@
 import wave
-import subprocess
 from pygame import mixer
 from pynput import keyboard
 from time import sleep

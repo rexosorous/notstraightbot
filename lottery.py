@@ -13,7 +13,7 @@ max_ticket_number = 5000
 
 def get_value() -> int:
 # returns the lottery pot
-	lottery_dict = load_file()
+	lottery_dict = util.load_file(file_string)
 	return lottery_dict['value']
 
 
