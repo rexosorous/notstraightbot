@@ -1,10 +1,6 @@
 import points
 import utilities as util
 
-# UNRELATED NOTES bc i won't remember unless it's in here
-# users can guarantee a win on lottery by buying max tickets and they'll always make a profit, find some way to balance this
-# should it be possible for more than one event (not the same one) to happen at the same time?
-# make variable names consistent: events should have 'players' not 'users'
 # find a way to split up !bomb commands
 
 # an irc remake of: https://www.youtube.com/watch?v=GXTRNSuC_YQ

@@ -1,13 +1,13 @@
-import numpy
 import points
 import utilities as util
+from numpy import random
 
 file_string = 'json/box_info.json'
 
 
 
-def rng(min_value: int, max_value: int) -> int:
-    return int(numpy.random.gamma(2, 400))
+def box_rng() -> int:
+    return int(random.gamma(2, 400))
 
 
 def spawn():
@@ -17,7 +17,7 @@ def spawn():
     	"top_bid": 0
 	}
 
-	box_dict["box_points"] = rng(0, 1000)
+	box_dict["box_points"] = box_rng()
 	util.write_file(file_string, box_dict)
 	print ('[box] spawned with ' + format(box_dict["box_points"], ',d') + ' points')
 
@@ -53,4 +53,4 @@ def get_box_points() -> int:
 
 
 def is_alive() -> bool:
-	return util.file_exists()
+	return util.file_exists(file_string)

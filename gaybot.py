@@ -4,6 +4,7 @@ import requests
 import threading
 import json
 import queue
+import os
 from time import sleep
 
 # my own libraries
@@ -16,6 +17,8 @@ sys.path.append(os.path.join(sys.path[0],'events')) # let's me import modules fr
 import mystery_box
 import lottery
 import bomb_squad
+
+
 
 ############ TO DO #################
 
@@ -37,6 +40,11 @@ import bomb_squad
 # REEDEM POINTS FOR
 # control music
 # text to speech
+
+# abstract away messaging to util so that other modules can message
+# make variable names consistent: events should have 'players' not 'users'
+# find a better way to display commands when user types !help
+# users can guarantee a win on lottery by buying max tickets and they'll always make a profit, find some way to balance this
 
 
 bomb_q = queue.Queue()
