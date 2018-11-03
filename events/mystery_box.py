@@ -5,7 +5,7 @@ import os
 import points
 import utilities as util
 
-file_string = 'box_info.json'
+file_string = 'json/box_info.json'
 
 
 

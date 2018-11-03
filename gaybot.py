@@ -1,3 +1,4 @@
+import sys
 import irc.bot
 import requests
 import threading
@@ -9,12 +10,14 @@ from time import sleep
 
 # my own libraries
 import points
-import mystery_box
-import lottery
-import bomb_squad
 import utilities as util
 import redeem
 
+# placed all the event modules in their own folder
+sys.path.append(os.path.join(sys.path[0],'events')) # let's me import modules from a relative path
+import mystery_box
+import lottery
+import bomb_squad
 
 ############ TO DO #################
 
@@ -36,8 +39,6 @@ import redeem
 # REEDEM POINTS FOR
 # control music
 # text to speech
-# ideas for more sound effects:
-#	jump scare
 
 
 bomb_q = queue.Queue()
@@ -45,7 +46,7 @@ bomb_q = queue.Queue()
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
 	def __init__(self, username, client_id, token, channel):
-		self.blacklist = util.load_file('blacklist.json')
+		self.blacklist = util.load_file('json/blacklist.json')
 
 		self.client_id = client_id
 		self.token = token
@@ -234,7 +235,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
 	def syntax(self, cmd_whole: str):
-		with open('commands_syntax.json') as syntax_file:
+		with open('json/commands_syntax.json') as syntax_file:
 			syntax_dict = json.load(syntax_file)
 		self.message(syntax_dict[cmd_whole])
 
@@ -310,7 +311,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 		if cmd_whole in ['help', 'commands', 'commandslist']:
 			help_list = []
 			output_string = 'Commoner available commands: '
-			common_commands_file = open('commands.json', "r")
+			common_commands_file = open('json/commands.json', "r")
 			common_commands_list_full = [line.strip() for line in common_commands_file]
 			common_commands_file.close()
 			for common_commands in common_commands_list_full:
@@ -401,7 +402,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 					else:
 						self.blacklist.append(target)
 						points.remove_user(target)
-						util.write_file('blacklist.json', self.blacklist)
+						util.write_file('json/blacklist.json', self.blacklist)
 						self.message(f'{target} has been banned from this bot')
 
 		elif cmd == 'unban' and user in admins:
@@ -413,7 +414,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 					self.message('that user was not already banned')
 				else:
 					self.blacklist.remove(target)
-					util.write_file('blacklist.json', self.blacklist)
+					util.write_file('json/blacklist.json', self.blacklist)
 					self.message(f'{target} has been unbanned from this bot')
 
 
@@ -849,7 +850,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 		################# BASIC TEXT COMMANDS ######################
 		else:
-			common_commands_file = open('commands.json', "r")
+			common_commands_file = open('json/commands.json', "r")
 			common_commands_list_full = [line.strip() for line in common_commands_file]
 			common_commands_file.close()
 
@@ -899,7 +900,7 @@ def word_fixer(input: str) -> str:
 
 
 def get_commands_list() -> list:
-	commands_file_string = 'commands.json'
+	commands_file_string = 'json/commands.json'
 
 	# common_commands_file is the file we'll store commands anyone can use and their functionalities
 	# syntax for the file is [command name]::[permission]::[output]
@@ -931,8 +932,8 @@ def main():
 	token = 'o46q25lvzkat7ifntm8ndv9urbsjra'
 	channel = 'gay_zach'
 
-	if os.path.exists('box_info.json'):
-		os.remove('box_info.json')
+	if os.path.exists('json/box_info.json'):
+		os.remove('json/box_info.json')
 
 	try:
 		bot = TwitchBot(username, client_id, token, channel)

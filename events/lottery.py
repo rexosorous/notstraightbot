@@ -5,7 +5,7 @@ import points
 import utilities as util
 
 
-file_string = 'lottery_info.json'
+file_string = 'json/lottery_info.json'
 init_val = 500
 max_ticket_number = 5000
 

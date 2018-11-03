@@ -33,7 +33,7 @@ import utilities as util
 # inform players when it's their turn and which wires they can choose from
 
 
-file_string = 'bomb_info.json'
+file_string = 'json/bomb_info.json'
 active_player_pos = 1
 
 

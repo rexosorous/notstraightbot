@@ -6,7 +6,7 @@ from time import sleep
 import utilities as util
 from gaybot import get_viewers
 
-file_string = 'points_table.json'
+file_string = 'json/points_table.json'
 
 everyone = ['everybody', 'everyone', 'all']
 admins = ['gay_zach', 'hwangbroxd']
@@ -67,7 +67,7 @@ def change_points(user: str, points: int, op: str):
 	points_dict = util.load_file(file_string)
 	if user in everyone:
 		usernames = get_viewers()
-		blacklist = util.load_file('blacklist.json')
+		blacklist = util.load_file('json/blacklist.json')
 		for x in usernames:
 			if x not in blacklist:
 				points_dict[x] = ops[op](points_dict[x], points)
@@ -80,7 +80,7 @@ def set_points(user: str, points: int):
 	points_dict = util.load_file(file_string)
 	if user in everyone:
 		usernames = get_viewers()
-		blacklist = util.load_file('blacklist.json')
+		blacklist = util.load_file('json/blacklist.json')
 		for x in usernames:
 			if x not in blacklist:
 				points_dict[x] = points
