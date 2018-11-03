@@ -1,7 +1,4 @@
 import numpy
-import json
-import os
-
 import points
 import utilities as util
 
@@ -26,8 +23,7 @@ def spawn():
 
 
 def cleanup():
-	if os.path.exists(file_string):
-		os.remove(file_string)
+	util.remove_file(file_string)
 
 
 def bid(user: str, bid: int):
@@ -57,4 +53,4 @@ def get_box_points() -> int:
 
 
 def is_alive() -> bool:
-	return os.path.exists(file_string)
+	return util.file_exists()

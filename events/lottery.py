@@ -1,12 +1,9 @@
-import json
-import random
-
 import points
 import utilities as util
 
 
 file_string = 'json/lottery_info.json'
-init_val = 500
+init_val = 1000
 max_ticket_number = 5000
 
 
@@ -46,9 +43,9 @@ def ticket_exists_check(number: int, lottery_dict: dict) -> bool:
 
 
 def generate_ticket(lottery_dict: dict) -> int:
-	ticket = random.randint(1, max_ticket_number)
+	ticket = util.rng(1, max_ticket_number)
 	while ticket_exists_check(ticket, lottery_dict):
-		ticket = random.randint(1, max_ticket_number)
+		ticket = util.rng(1, max_ticket_number)
 	return ticket
 
 
@@ -63,7 +60,7 @@ def buy_ticket(user: str, qty: int):
 
 def draw() -> str:
 # json stores the tickets as strings instead of ints
-	winning_ticket = str(random.randint(1, max_ticket_number))
+	winning_ticket = str(util.rng(1, max_ticket_number))
 	lottery_dict = util.load_file(file_string)
 	if winning_ticket in lottery_dict:
 		winner = lottery_dict[winning_ticket]

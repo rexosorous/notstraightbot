@@ -1,7 +1,3 @@
-import json
-import random
-import os
-
 import points
 import utilities as util
 
@@ -36,11 +32,6 @@ import utilities as util
 file_string = 'json/bomb_info.json'
 active_player_pos = 1
 
-
-
-def rng(upper: int) -> int:
-	# we'll never want to rng into wire 0 (since that's unintuitive for users)
-	return random.randint(1, upper)
 
 
 def join(user: str):
@@ -80,7 +71,7 @@ def new_round() -> str:
 		return f'{winner} is the last man standing and has won 300 points!'
 	else:
 		bomb_dict = {x: 0 for x in bomb_dict} # resets all values to 0
-		bomb_dict['bad_wire'] = rng(len(bomb_dict) - 1)
+		bomb_dict['bad_wire'] = util.rng(1, len(bomb_dict) - 1)
 		util.write_file(file_string, bomb_dict)
 		return f'{get_players[active_player_pos]}, you\'re up next. Cut one of these wires with !bomb cut: {bomb_squad.get_avail_wires()}'
 
@@ -91,8 +82,7 @@ def elim_player(player: str):
 
 
 def cleanup():
-	if os.path.exists(file_string):
-		os.remove(file_string)
+	util.remove_file(file_string)
 
 
 def get_avail_wires() -> list:
@@ -128,7 +118,7 @@ def get_idle(user: str) -> int:
 
 def is_alive() -> bool:
 	# this is mainly used to make sure that two instances of this event can't happen at the same time
-	return os.path.exists(file_string)
+	return util.file_exists()
 
 
 def in_progress() -> bool:

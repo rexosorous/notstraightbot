@@ -2,10 +2,8 @@ import sys
 import irc.bot
 import requests
 import threading
-import random
 import json
 import queue
-import os
 from time import sleep
 
 # my own libraries
@@ -71,7 +69,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 	def update_points(self):
 		while True:
-			points.update_points([x for x in get_viewers() if x not in self.blacklist])
+			points.update_points([x for x in util.get_viewers() if x not in self.blacklist])
 			sleep(15)
 
 
@@ -80,8 +78,8 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 		time_min = 15 # in minutes
 		time_max = 30 # in minutes
 		while True:
-			sleep(rng(time_min * 60, time_max * 60)) # sleep(x) sleeps for x seconds
-			event_number = rng(1, 2)
+			sleep(util.rng(time_min * 60, time_max * 60)) # sleep(x) sleeps for x seconds
+			event_number = util.rng(1, 2)
 			if event_number == 1:
 				self.mystery_box_event()
 			elif event_number == 2:
@@ -223,7 +221,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 			self.message(f'{user} is banned from this bot.')
 			return
 		if not points.user_exists_check(user):
-			chat = get_viewers()
+			chat = util.get_viewers()
 			if user in chat:
 				points.add_user(user)
 				return True
@@ -235,8 +233,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
 	def syntax(self, cmd_whole: str):
-		with open('json/commands_syntax.json') as syntax_file:
-			syntax_dict = json.load(syntax_file)
+		syntax_dict = util.load_file('json/commands_syntax.json')
 		self.message(syntax_dict[cmd_whole])
 
 
@@ -576,7 +573,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 					arguments[1] = points.get_points(user)
 				if self.points_check(user, arguments[1]):
 					value = int(arguments[1])
-					result = rng(0, 100)
+					result = util.rng(0, 100)
 					if result < 50:
 						points.change_points(user, value, '-')
 						self.message(f'{user} rolled a {result} and has lost {value:,} points! you now have {points.get_points(user):,} points.')
@@ -875,23 +872,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
 
-def get_viewers() -> str:
-	url = r'https://tmi.twitch.tv/group/user/gay_zach/chatters'
-	names = requests.get(url).json()
-
-	# avoid getting timed out
-	sleep(0.5)
-
-	# formatted string
-	return names['chatters']['viewers'] + names['chatters']['moderators']
-
-
-def rng(min_value: int, max_value: int) -> int:
-	random.seed(None)
-	return random.randint(min_value, max_value)
-
-
-
 def word_fixer(input: str) -> str:
 	if input[0] in ['!', '@', '#']:
 		return input[1:].lower()
@@ -932,8 +912,7 @@ def main():
 	token = 'o46q25lvzkat7ifntm8ndv9urbsjra'
 	channel = 'gay_zach'
 
-	if os.path.exists('json/box_info.json'):
-		os.remove('json/box_info.json')
+	util.remove_file('json/box_info.json')
 
 	try:
 		bot = TwitchBot(username, client_id, token, channel)

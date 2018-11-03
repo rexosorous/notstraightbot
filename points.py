@@ -1,10 +1,8 @@
 import requests
-import json
 import operator
 from time import sleep
 
 import utilities as util
-from gaybot import get_viewers
 
 file_string = 'json/points_table.json'
 
@@ -66,7 +64,7 @@ def change_points(user: str, points: int, op: str):
            "/": operator.ifloordiv}
 	points_dict = util.load_file(file_string)
 	if user in everyone:
-		usernames = get_viewers()
+		usernames = util.get_viewers()
 		blacklist = util.load_file('json/blacklist.json')
 		for x in usernames:
 			if x not in blacklist:
@@ -79,7 +77,7 @@ def change_points(user: str, points: int, op: str):
 def set_points(user: str, points: int):
 	points_dict = util.load_file(file_string)
 	if user in everyone:
-		usernames = get_viewers()
+		usernames = util.get_viewers()
 		blacklist = util.load_file('json/blacklist.json')
 		for x in usernames:
 			if x not in blacklist:
