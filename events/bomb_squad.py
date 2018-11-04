@@ -5,16 +5,16 @@ import utilities as util
 
 # an irc remake of: https://www.youtube.com/watch?v=GXTRNSuC_YQ
 #
-# 1. inform users that bomb squad event will start soon
-# 2. allow users to join the event with !bomb join, for a cost of 50 points (do not start if there is only one player)
-# 3. create a json with a rng'd wire # and each participating user (because i don't know how else to do this using multithreading)
-# 4. each user (in a defined order) will then choose to cut a wire using !cutwire <#>. 
-# 5. if that wire was the one rng'd earlier, they "blow up" and are eliminated from the event. time out users if they take too long
-# 6. repeat steps 3 - 5 until only one user remains
-# 7. the winner will receive 200 + the amount paid by all users that joined the event (tentative to change)
+# 1. inform players that bomb squad event will start soon
+# 2. allow players to join the event with !bomb join, for a cost of 50 points (do not start if there is only one player)
+# 3. create a json with a rng'd wire # and each participating player (because i don't know how else to do this using multithreading)
+# 4. each player (in a defined order) will then choose to cut a wire using !cutwire <#>. 
+# 5. if that wire was the one rng'd earlier, they "blow up" and are eliminated from the event. time out players if they take too long
+# 6. repeat steps 3 - 5 until only one player remains
+# 7. the winner will receive 200 + the amount paid by all players that joined the event (tentative to change)
 #
-# the json will contain a dictionary with the bad wire and each user and the wire they've chosen that round
-# we want to keep information on which users are still "in" every round and which wires are still available
+# the json will contain a dictionary with the bad wire and each player and the wire they've chosen that round
+# we want to keep information on which players are still "in" every round and which wires are still available
 # as of right now, i don't know of any other ways to store this information in a json, but i'm sure there's a much better way
 
 
@@ -30,9 +30,9 @@ active_player_pos = 1
 
 
 
-def join(user: str):
+def join(player: str):
 	bomb_dict = util.load_file(file_string)
-	bomb_dict[user] = 0
+	bomb_dict[player] = 0
 	util.write_file(file_string, temp_dict)
 
 
@@ -59,7 +59,7 @@ def choose_wire(player: str, num: int) -> str:
 
 
 def new_round() -> str:
-	# returns true if there will be a new round and false if only one user remains
+	# returns true if there will be a new round and false if only one player remains
 	bomb_dict = util.load_file(file_string)
 	if len(bomb_dict) == 2:
 		winner = get_players[0]
@@ -85,7 +85,7 @@ def get_avail_wires() -> list:
 	bomb_dict = util.load_file(file_string)
 
 	# the second argument of range() is exclusive. so range(1, 10) produces numbers 1 - 9
-	# bomb_dict will have all users + bad_wire
+	# bomb_dict will have all players + bad_wire
 	# instead of doing len(bomb_dict) - 1 after pop('bad_wire'), we reverse it
 	avail_wires = list(range(1, len(bomb_dict)))
 	bomb_dict.pop('bad_wire')
@@ -106,10 +106,10 @@ def get_active_player() -> str:
 	return players[active_player_pos]
 
 
-def get_idle(user: str) -> int:
+def get_idle(player: str) -> int:
 	# returns true if a player hasn't made a choice yet and vice-versa
 	bomb_dict = util.load_file(file_string)
-	return bomb_dict[user] != 0
+	return bomb_dict[player] != 0
 
 
 def is_alive() -> bool:

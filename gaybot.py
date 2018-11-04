@@ -10,12 +10,11 @@ from time import sleep
 import points
 import utilities as util
 import redeem
-import test
 
 # placed all the event modules in their own folder
-import events.mystery_box
-import events.lottery
-import events.bomb_squad
+import events.mystery_box as mystery_box
+import events.lottery as lottery
+import events.bomb_squad as bomb_squad
 
 
 

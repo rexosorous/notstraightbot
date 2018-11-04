@@ -14,13 +14,13 @@ def get_value() -> int:
 	return lottery_dict['value']
 
 
-def get_tickets(user: str) -> int:
-# returns the number of tickets owned by a user
+def get_tickets(player: str) -> int:
+# returns the number of tickets owned by a player
 	lottery_dict = util.load_file(file_string)
 	owners_list = list(lottery_dict.values())
 	tickets = 0
 	for x in range(len(owners_list)):
-		if owners_list[x] == user:
+		if owners_list[x] == player:
 			tickets += 1
 	return tickets
 
@@ -30,10 +30,10 @@ def get_remaining_tickets() -> int:
 	return max_ticket_number - len(lottery_dict) + 1 # len(lottery_dict) while empty is 1 because of value
 
 
-def user_exists_check(user: str) -> bool:
+def user_exists_check(player: str) -> bool:
 	lottery_dict = util.load_file(file_string)
 	owners_list = lottery_dict.values()
-	return user in owners_list
+	return player in owners_list
 
 
 def ticket_exists_check(number: int, lottery_dict: dict) -> bool:
@@ -49,11 +49,11 @@ def generate_ticket(lottery_dict: dict) -> int:
 	return ticket
 
 
-def buy_ticket(user: str, qty: int):
-# buys tickets for a user and increases lottery pot
+def buy_ticket(player: str, qty: int):
+# buys tickets for a player and increases lottery pot
 	lottery_dict = util.load_file(file_string)
 	for x in range(qty):
-		lottery_dict[str(generate_ticket(lottery_dict))] = user
+		lottery_dict[str(generate_ticket(lottery_dict))] = player
 	lottery_dict['value'] += qty * 5
 	util.write_file(file_string, lottery_dict)
 

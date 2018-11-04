@@ -26,12 +26,12 @@ def cleanup():
 	util.remove_file(file_string)
 
 
-def bid(user: str, bid: int):
+def bid(player: str, bid: int):
 	box_dict = util.load_file(file_string)
 
 	if box_dict["top_bidder"] != '':
 		points.change_points(box_dict["top_bidder"], box_dict["top_bid"], '+')
-	box_dict["top_bidder"] = user
+	box_dict["top_bidder"] = player
 	box_dict["top_bid"] = bid
 	points.change_points(box_dict["top_bidder"], box_dict["top_bid"] * -1, '+')
 	util.write_file(file_string, box_dict)
