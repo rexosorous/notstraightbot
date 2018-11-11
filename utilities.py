@@ -4,6 +4,9 @@ import requests
 from random import randint
 from time import sleep
 
+everyone = ['everybody', 'everyone', 'all']
+admins = ['gay_zach', 'hwangbroxd']
+
 def load_file(file_name: str) -> dict:
 	with open(file_name) as file:
 		return json.load(file)
@@ -15,6 +18,14 @@ def write_file(file_name: str, rewrite):
 def remove_file(file_name: str):
 	if os.path.exists(file_name):
 		os.remove(file_name)
+
+def load_blacklist() -> dict:
+	with open('json/blacklist.json') as file:
+		return json.load(file)
+
+def write_blacklist(rewrite: dict):
+	with open('json/blacklist.json') as file:
+		json.dump(rewrite, file, indent=4)
 
 def file_exists(file_name: str) -> bool:
 	return os.path.exists(file_name)

@@ -2,55 +2,50 @@ import points
 import utilities as util
 from numpy import random
 
-file_string = 'json/box_info.json'
 
+class MysteryBox:
+	def __init__(self, points):
+		self.points = points
+		self.active = False
 
+		self.top_bidder = ''
+		self.box_points = 0
+		self.top_bid = 0
 
-def box_rng() -> int:
-    return int(random.gamma(2, 400))
+	def activate(self):
+		self.active = True
+		self.box_points = self.box_rng()
+		print( f'[box] spawned with {self.box_points:,} points')
 
+	def box_rng(self) -> int:
+		return int(random.gamma(2,400))
 
-def spawn():
-	box_dict = {
-		"box_points": 0,
-    	"top_bidder": "",
-    	"top_bid": 0
-	}
+	def bid(self, player: str, bid: int):
+		if self.top_bidder:
+			self.points.change_points(self.top_bidder, self.top_bid, '+')
+		self.top_bidder = player
+		self.top_bid = bid
 
-	box_dict["box_points"] = box_rng()
-	util.write_file(file_string, box_dict)
-	print ('[box] spawned with ' + format(box_dict["box_points"], ',d') + ' points')
+		self.points.change_points(self.top_bidder, self.top_bid, '-')
 
+	def get_top_bidder(self) -> str:
+		return self.top_bidder
 
-def cleanup():
-	util.remove_file(file_string)
+	def get_top_bid(self) -> int:
+		return self.top_bid
 
+	def get_box_points(self) -> int:
+		return self.box_points
 
-def bid(player: str, bid: int):
-	box_dict = util.load_file(file_string)
+	def get_box_details(self) -> (str,int,int):
+		# winner, points, bid
+		return self.top_bidder, self.box_points, self.top_bid
 
-	if box_dict["top_bidder"] != '':
-		points.change_points(box_dict["top_bidder"], box_dict["top_bid"], '+')
-	box_dict["top_bidder"] = player
-	box_dict["top_bid"] = bid
-	points.change_points(box_dict["top_bidder"], box_dict["top_bid"] * -1, '+')
-	util.write_file(file_string, box_dict)
+	def is_alive(self) -> bool:
+		return self.active
 
-
-def get_top_bidder() -> str:
-	box_dict = util.load_file(file_string)
-	return box_dict["top_bidder"]
-
-
-def get_top_bid() -> int:
-	box_dict = util.load_file(file_string)
-	return box_dict["top_bid"]
-
-
-def get_box_points() -> int:
-	box_dict = util.load_file(file_string)
-	return box_dict["box_points"]
-
-
-def is_alive() -> bool:
-	return util.file_exists(file_string)
+	def cleanup(self):
+		self.active = False
+		self.box_points = 0
+		self.top_bidder = ''
+		self.top_bid = 0
