@@ -929,6 +929,11 @@ def main():
 		bot.message('bot has committed honorable sudoku')
 		bot.points.save()
 		bot.lottery.save()
+	except:
+		bot.message('bot has committed honorable sudoku')
+		bot.points.save()
+		bot.lottery.save()
+		raise
 
 if __name__ == "__main__":
 	main()
