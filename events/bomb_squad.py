@@ -31,92 +31,92 @@ active_player_pos = 1
 
 
 def join(player: str):
-	bomb_dict = util.load_file(file_string)
-	bomb_dict[player] = 0
-	util.write_file(file_string, temp_dict)
+    bomb_dict = util.load_file(file_string)
+    bomb_dict[player] = 0
+    util.write_file(file_string, temp_dict)
 
 
 def start():
-	temp_dict = {'bad_wire': 0}
-	util.write_file(file_string, temp_dict)
+    temp_dict = {'bad_wire': 0}
+    util.write_file(file_string, temp_dict)
 
 
 def choose_wire(player: str, num: int) -> str:
-	bomb_dict = util.load_file(file_string)
-	if num == bomb_dict['bad_wire']:
-		bomb_dict.pop(player)
-		util.write_file(file_string, bomb_dict)
-		if active_player_pos > len(bomb_dict) -1:
-			active_player_pos -= len(bomb_dict) -1
-		return f'{player} blew up the bomb! cmonBruh'
-	else:
-		bomb_dict[player] = num
-		util.write_file(file_string, bomb_dict)
-		active_player_pos += 1
-		if active_player_pos > len(bomb_dict) - 1:
-			active_player_pos -= len(bomb_dict) -1
-		return f'{player} lives! Clap'
+    bomb_dict = util.load_file(file_string)
+    if num == bomb_dict['bad_wire']:
+        bomb_dict.pop(player)
+        util.write_file(file_string, bomb_dict)
+        if active_player_pos > len(bomb_dict) -1:
+            active_player_pos -= len(bomb_dict) -1
+        return f'{player} blew up the bomb! cmonBruh'
+    else:
+        bomb_dict[player] = num
+        util.write_file(file_string, bomb_dict)
+        active_player_pos += 1
+        if active_player_pos > len(bomb_dict) - 1:
+            active_player_pos -= len(bomb_dict) -1
+        return f'{player} lives! Clap'
 
 
 def new_round() -> str:
-	# returns true if there will be a new round and false if only one player remains
-	bomb_dict = util.load_file(file_string)
-	if len(bomb_dict) == 2:
-		winner = get_players[0]
-		points.change_points(winner, 300, '+')
-		return f'{winner} is the last man standing and has won 300 points!'
-	else:
-		bomb_dict = {x: 0 for x in bomb_dict} # resets all values to 0
-		bomb_dict['bad_wire'] = util.rng(1, len(bomb_dict) - 1)
-		util.write_file(file_string, bomb_dict)
-		return f'{get_players[active_player_pos]}, you\'re up next. Cut one of these wires with !bomb cut: {bomb_squad.get_avail_wires()}'
+    # returns true if there will be a new round and false if only one player remains
+    bomb_dict = util.load_file(file_string)
+    if len(bomb_dict) == 2:
+        winner = get_players[0]
+        points.change_points(winner, 300, '+')
+        return f'{winner} is the last man standing and has won 300 points!'
+    else:
+        bomb_dict = {x: 0 for x in bomb_dict} # resets all values to 0
+        bomb_dict['bad_wire'] = util.rng(1, len(bomb_dict) - 1)
+        util.write_file(file_string, bomb_dict)
+        return f'{get_players[active_player_pos]}, you\'re up next. Cut one of these wires with !bomb cut: {bomb_squad.get_avail_wires()}'
 
 
 def elim_player(player: str):
-	bomb_dict = util.load_file(file_string)
-	choose_wire(player, bomb_dict['bad_wire'])
+    bomb_dict = util.load_file(file_string)
+    choose_wire(player, bomb_dict['bad_wire'])
 
 
 def cleanup():
-	util.remove_file(file_string)
+    util.remove_file(file_string)
 
 
 def get_avail_wires() -> list:
-	bomb_dict = util.load_file(file_string)
+    bomb_dict = util.load_file(file_string)
 
-	# the second argument of range() is exclusive. so range(1, 10) produces numbers 1 - 9
-	# bomb_dict will have all players + bad_wire
-	# instead of doing len(bomb_dict) - 1 after pop('bad_wire'), we reverse it
-	avail_wires = list(range(1, len(bomb_dict)))
-	bomb_dict.pop('bad_wire')
-	chosen_wires = list(bomb_dict.values())
+    # the second argument of range() is exclusive. so range(1, 10) produces numbers 1 - 9
+    # bomb_dict will have all players + bad_wire
+    # instead of doing len(bomb_dict) - 1 after pop('bad_wire'), we reverse it
+    avail_wires = list(range(1, len(bomb_dict)))
+    bomb_dict.pop('bad_wire')
+    chosen_wires = list(bomb_dict.values())
 
-	# for every wire in avail_wires, if they are not in chosen_wires, add them to this list
-	return [wire for wire in avail_wires if wire not in chosen_wires]
+    # for every wire in avail_wires, if they are not in chosen_wires, add them to this list
+    return [wire for wire in avail_wires if wire not in chosen_wires]
 
 
 def get_players() -> list:
-	bomb_dict = util.load_file(file_string)
-	bomb_dict.pop('bad_wire')
-	return bomb_dict.keys()
+    bomb_dict = util.load_file(file_string)
+    bomb_dict.pop('bad_wire')
+    return bomb_dict.keys()
 
 
 def get_active_player() -> str:
-	players = get_players()
-	return players[active_player_pos]
+    players = get_players()
+    return players[active_player_pos]
 
 
 def get_idle(player: str) -> int:
-	# returns true if a player hasn't made a choice yet and vice-versa
-	bomb_dict = util.load_file(file_string)
-	return bomb_dict[player] != 0
+    # returns true if a player hasn't made a choice yet and vice-versa
+    bomb_dict = util.load_file(file_string)
+    return bomb_dict[player] != 0
 
 
 def is_alive() -> bool:
-	# this is mainly used to make sure that two instances of this event can't happen at the same time
-	return util.file_exists()
+    # this is mainly used to make sure that two instances of this event can't happen at the same time
+    return util.file_exists()
 
 
 def in_progress() -> bool:
-	bomb_dict = util.load_file(file_string)
-	return bomb_dict['value'] != 0
+    bomb_dict = util.load_file(file_string)
+    return bomb_dict['value'] != 0
