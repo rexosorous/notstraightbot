@@ -1,4 +1,4 @@
 __pycache__/
 *.py[cod]
-__init__.py
+events/__init__.py
 OBS_effects
