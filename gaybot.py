@@ -100,8 +100,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     def mystery_box_event(self):
         if not self.mystery_box.is_alive():
             self.mystery_box.activate()
-            print(self.mystery_box.points.check_user_exists('hwangbroxd'))
-            print(self.points.check_user_exists('hwangbroxd'))
             self.message('A Mystery Points Box has spawned! Type !bid <#> to try to win it! The auction will end in 3 minutes.')
             sleep(60)
             self.message('2 minutes left to bid on the Mystery Points Box!')
