@@ -239,9 +239,9 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             return True
 
 
-    def syntax(self, cmd_whole: str):
+    def syntax(self, cmd_raw: str):
         syntax_dict = util.load_file('json/commands_syntax.json')
-        self.message(syntax_dict[cmd_whole])
+        self.message(syntax_dict[cmd_raw])
 
 
 
@@ -293,15 +293,16 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
         # If a chat message starts with an exclamation point, try to run it as a command
         if e.arguments[0][:1] == '!':
-            cmd_whole = e.arguments[0][1:]
-            print ('[' + e.source[:e.source.find('!')] + '] ' + cmd_whole)
-            self.do_command(e, cmd_whole)
+            cmd_raw = e.arguments[0][1:]
+            print ('[' + e.source[:e.source.find('!')] + '] ' + cmd_raw)
+            self.do_command(e, cmd_raw)
 
 
-    def do_command(self, e, cmd_whole):
-        cmd_whole = cmd_whole.lower()
-        arguments = cmd_whole.split(' ')
-        cmd = arguments[0]
+    def do_command(self, e, cmd_raw):
+        args = cmd_raw.split(' ')
+        args_full = ' '.join(args[1:])
+        cmd_raw = cmd_raw.lower()
+        cmd = args[0].lower()
         user = e.source[:e.source.find('!')] # the user who sent the message
 
 
@@ -311,7 +312,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             self.message(f'{user} is banned from this bot')
             return
 
-        if cmd_whole in ['help', 'commands', 'commandslist']:
+        if cmd_raw in ['help', 'commands', 'commandslist']:
             help_list = []
             output_string = 'Commoner available commands: '
             common_commands_file = open('json/commands.json', "r")
@@ -328,7 +329,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
         # list all the admins with a () around their name to avoid pinging them
-        elif cmd_whole in ['admin', 'admins', 'adminlist', 'adminslist']:
+        elif cmd_raw in ['admin', 'admins', 'adminlist', 'adminslist']:
             admin_list = []
             for admin in util.admins:
                 admin_list.append('(' + admin + ')')
@@ -336,17 +337,17 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
         # list all bttv emotes
-        elif cmd_whole in ['bttvemotes', 'emotes', 'emoteslist']:
+        elif cmd_raw in ['bttvemotes', 'emotes', 'emoteslist']:
             self.message('EZ  Clap  HYPERCLAP  SPANK  SPANKED  FeelsGoldMan')
 
 
         # add new commands
         elif cmd in ['newcommand', 'addcommand', 'createcommand'] and user in util.admins:
-            if len(arguments) < 4 or arguments[2].lower() not in ['admin', 'common']:
+            if len(args) < 4 or args[2].lower() not in ['admin', 'common']:
                 self.syntax(cmd)
             else:
                 # remove the ! at the beginning of the new command name if present
-                new_name = util.word_fixer(arguments[1])
+                new_name = util.word_fixer(args[1])
                 common_commands_list = util.get_commands_list()
                 if new_name in common_commands_list:
                     self.message(new_name + ' command already exists')
@@ -354,10 +355,10 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 # add the new command
                 else: 
                     common_commands_file_write = open(commands_file_string, "a")
-                    new_permission = util.word_fixer(arguments[2])
+                    new_permission = util.word_fixer(args[2])
                     common_commands_file_write.write('\n' + new_name + '::' + new_permission + '::')
-                    for a in range(3, len(arguments)):
-                        common_commands_file_write.write(arguments[a] + ' ')
+                    for a in range(3, len(args)):
+                        common_commands_file_write.write(args[a] + ' ')
                     print(f'{user} created {new_name} command.')
                     self.message(f'Successfully created {new_name} command')
                     common_commands_file_write.close()
@@ -366,11 +367,11 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         #remove commands
         elif cmd in ['deletecommand', 'removecommand'] and user in util.admins:
             # make sure the command has the correct syntax
-            if len(arguments) != 2:
+            if len(args) != 2:
                 self.syntax(cmd)
             else: 
                 # remove ! at the beginning of the command name if present
-                name = util.word_fixer(arguments[1])
+                name = util.word_fixer(args[1])
 
                 # store commands.json in replace
                 # edit replace
@@ -395,10 +396,10 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
         elif cmd == 'ban' and user in util.admins:
-            if len(arguments) != 2:
+            if len(args) != 2:
                 self.syntax(cmd)
             else:
-                target = util.word_fixer(arguments[1])
+                target = util.word_fixer(args[1])
                 if target not in util.admins:
                     if target in self.blacklist:
                         self.message('that user is already banned')
@@ -409,10 +410,10 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                         self.message(f'{target} has been banned from this bot')
 
         elif cmd == 'unban' and user in util.admins:
-            if len(arguments) != 2:
+            if len(args) != 2:
                 self.sytnax(cmd)
             else:
-                target = util.word_fixer(arguments[1])
+                target = util.word_fixer(args[1])
                 if target not in self.blacklist:
                     self.message('that user was not already banned')
                 else:
@@ -422,17 +423,45 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
 
+        # converts 'hello world' to 'h e l l o w o r l d'
+        elif cmd in ['space', 'spaceout']:
+            self.message(' '.join(args_full))
+
+
+
+        # converts 'hello world' to 'HeLlO wOrLd'
+        elif cmd in ['memetext', 'spongebobtext']:
+            meme_string = '' # python strings are immutable so we can't edit args_full directly
+            cbool = True if args_full[0].isupper() else False # controls pattern of text
+                # "Text" becomes "TeXt" and "text" becomes "tExT"
+                # True = upper
+                # False = lower
+
+            for char in args_full.lower():
+                meme_string += char.upper() if cbool else char # capitalize a character of cbool is true
+                if char.isalpha(): # makes sure that 'don't' becomes 'DoN't' and not 'DoN'T'
+                    cbool = not cbool
+
+            self.message(meme_string)
+
+
+
+
+
+
+
+
 
 
 
         ########## POINTS RELATED COMMANDS ##############
         # check the points of users
         elif cmd == 'points':
-            if len(arguments) == 1:
+            if len(args) == 1:
                 if self.add_user(user):
                     self.message(f'{user} has {self.points.get_points(user):,} points')
-            elif len(arguments) == 2:
-                username = util.word_fixer(arguments[1])
+            elif len(args) == 2:
+                username = util.word_fixer(args[1])
 
                 if username in ['top', 'richest']:
                     top = self.points.get_bot()
@@ -449,13 +478,13 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
         # add points to users
         elif cmd == 'addpoints' and user in util.admins:
-            if len(arguments) != 3:
+            if len(args) != 3:
                 self.syntax(cmd)
             else:
-                username = util.word_fixer(arguments[1])
+                username = util.word_fixer(args[1])
 
                 try:
-                    add = int(arguments[2])
+                    add = int(args[2])
                     if username in util.everyone:
                         self.points.change_points(username, add, '+')
                         self.message(f'everyone has been given {add:,} points! Kreygasm')                    
@@ -463,21 +492,21 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                         self.points.change_points(username, add, '+')
                         self.message(self.user_balance(username))
                 except ValueError:
-                    self.message(arguments[2] + ' is not a number')                       
+                    self.message(args[2] + ' is not a number')                       
 
 
         # subtract points from users
         elif cmd in ['subpoints', 'removepoints', 'deletepoints'] and user in util.admins:
-            if len(arguments) != 3:
+            if len(args) != 3:
                 self.syntax(cmd)
             else:
-                username = util.word_fixer(arguments[1])
+                username = util.word_fixer(args[1])
 
-                if arguments[2].lower() == 'all':
-                        arguments[2] = self.points.get_points(username)
+                if args[2].lower() == 'all':
+                        args[2] = self.points.get_points(username)
 
                 try:
-                    sub = int(arguments[2])
+                    sub = int(args[2])
                     if username in util.everyone:
                         self.points.change_points(username, sub, '-')
                         self.message(f'everyone has lost {sub * -1:,} points. FeelsBadMan')            
@@ -485,17 +514,17 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                         self.points.change_points(username, sub, '-')
                         self.message(self.user_balance(username))
                 except ValueError:
-                    self.message(arguments[2] + ' is not a number')
+                    self.message(args[2] + ' is not a number')
 
 
         elif cmd == 'setpoints' and user in util.admins:
-            if len(arguments) != 3:
+            if len(args) != 3:
                 self.syntax(cmd)
             else:
-                username = util.word_fixer(arguments[1])
+                username = util.word_fixer(args[1])
 
                 try:
-                    value = int(arguments[2])
+                    value = int(args[2])
                     if username in util.everyone:
                         self.points.set_points(username, value)
                         self.message(f'everyone has had their points reset to {value:,} points.')
@@ -503,43 +532,43 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                         self.points.set_points(username, value)
                         self.message(self.user_balance(username))
                 except ValueError:
-                    self.message(arguments[2] + ' is not a number')
+                    self.message(args[2] + ' is not a number')
 
 
 
         elif cmd in ['multpoints', 'multiplypoints']:
-            if len(arguments) != 3:
+            if len(args) != 3:
                 self.syntax(cmd)
             else:
-                username = util.word_fixer(arguments[1])
+                username = util.word_fixer(args[1])
 
                 if username in util.everyone:
-                    if self.illegal_value_check(arguments[2]):
-                        multiplier = int(arguments[2])
+                    if self.illegal_value_check(args[2]):
+                        multiplier = int(args[2])
                         self.points.change_points(username, multiplier, '*')
                         self.message(f'everyone has had their points multiplied by {multiplier}! Kreygasm')
                 elif self.user_exists_check(username):
-                    if self.illegal_value_check(arguments[2]):
-                        multiplier = int(arguments[2])
+                    if self.illegal_value_check(args[2]):
+                        multiplier = int(args[2])
                         self.points.change_points(username, multiplier, '*')
                         self.message(self.user_balance(username))
 
 
 
         elif cmd in ['divpoints', 'dividepoints']:
-            if len(arguments) != 3:
+            if len(args) != 3:
                 self.syntax(cmd)
             else:
-                username = util.word_fixer(arguments[1])
+                username = util.word_fixer(args[1])
 
                 if username in util.everyone:
-                    if self.illegal_value_check(arguments[2]):
-                        multiplier = int(arguments[2])
+                    if self.illegal_value_check(args[2]):
+                        multiplier = int(args[2])
                         self.points.change_points(username, multiplier, '/')
                         self.message(f'everyone has had their points divided by {multiplier}. FeelsBadMan')
                 elif self.user_exists_check(username):
-                    if self.illegal_value_check(arguments[2]):
-                        multiplier = int(arguments[2])
+                    if self.illegal_value_check(args[2]):
+                        multiplier = int(args[2])
                         self.points.change_points(username, multiplier, '/')
                         self.message(self.user_balance(username))
 
@@ -550,18 +579,18 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
         # allow users to give or donate their points
         elif cmd in ['givepoints', 'donatepoints']:
-            if len(arguments) != 3:
+            if len(args) != 3:
                 self.syntax(cmd)
             else:
                 donator = util.word_fixer(user)
-                recipient = util.word_fixer(arguments[1])
+                recipient = util.word_fixer(args[1])
 
-                if arguments[2].lower() == 'all':
-                    arguments[2] = self.points.get_points(donator)
+                if args[2].lower() == 'all':
+                    args[2] = self.points.get_points(donator)
 
-                if self.points_check(donator, arguments[2]):
+                if self.points_check(donator, args[2]):
                     if (self.user_exists_check(recipient)):
-                        value = int(arguments[2])
+                        value = int(args[2])
                         self.points.donate_points(donator, recipient, value)
                         self.message(self.user_balance(donator) + ' && ' + self.user_balance(recipient))
 
@@ -574,13 +603,13 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         # if =50, no change
         # if =100, player wins double. jackpot!
         elif cmd == 'gamble':
-            if len(arguments) != 2:
+            if len(args) != 2:
                 self.syntax(cmd)
             else:
-                if arguments[1].lower() == 'all':
-                    arguments[1] = self.points.get_points(user)
-                if self.points_check(user, arguments[1]):
-                    value = int(arguments[1])
+                if args[1].lower() == 'all':
+                    args[1] = self.points.get_points(user)
+                if self.points_check(user, args[1]):
+                    value = int(args[1])
                     result = util.rng(0, 100)
                     if result < 50:
                         self.points.change_points(user, value, '-')
@@ -597,13 +626,13 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
         # guarantees a 100 every time
         elif cmd == 'admingamble' and user in util.admins:
-            if len(arguments) != 2:
+            if len(args) != 2:
                 self.syntax(cmd)
             else:
-                if arguments[1].lower() == 'all':
-                    arguments[1] = self.points.get_points(user)
-                if self.points_check(user, arguments[1]):
-                    value = int(arguments[1])
+                if args[1].lower() == 'all':
+                    args[1] = self.points.get_points(user)
+                if self.points_check(user, args[1]):
+                    value = int(args[1])
                     result = 100
                     self.points.change_points(user, value * 2, '+')
                     self.message(f'{user} rolled a {result}! JACKPOT! you have won {value * 2:,} points! you now have {self.points.get_points(user):,} points.')
@@ -611,16 +640,16 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
         # bidding for mystery points box
         elif cmd == 'bid':
-            if len(arguments) != 2:
+            if len(args) != 2:
                 self.syntax(cmd)
             elif not self.mystery_box.is_alive():
                 self.message('A mystery points box hasn\'t spawned yet')
             else:
-                if arguments[1].lower() == 'all':
-                    arguments[1] = self.points.get_points(user)
+                if args[1].lower() == 'all':
+                    args[1] = self.points.get_points(user)
                 
-                if self.points_check(user, arguments[1]):
-                    value = int(arguments[1])
+                if self.points_check(user, args[1]):
+                    value = int(args[1])
                     if value > self.mystery_box.get_top_bid():
                         self.mystery_box.bid(user, value)
                         self.message(f'{self.mystery_box.get_top_bidder()} now has the highest bid with {self.mystery_box.get_top_bid():,} points!')
@@ -629,19 +658,19 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
         elif cmd in ['beatbid', 'beattopbid', 'beathighestbid']:
-            if len(arguments) != 2:
+            if len(args) != 2:
                 self.syntax(cmd)
             elif not self.mystery_box.is_alive():
                 self.message('A mystery points box hasn\'t spawned yet')
             else:
-                if self.points_check(user, arguments[1]):
-                    value = int(arguments[1]) + self.mystery_box.get_top_bid()
+                if self.points_check(user, args[1]):
+                    value = int(args[1]) + self.mystery_box.get_top_bid()
                     if self.funds_check(user, value):
                         self.mystery_box.bid(user, value)
                         self.message(f'{self.mystery_box.get_top_bidder()} now has the highest bid with {self.mystery_box.get_top_bid():,} points!')
 
 
-        elif cmd_whole in ['topbid', 'highestbid']:
+        elif cmd_raw in ['topbid', 'highestbid']:
             if not self.mystery_box.is_alive():
                 self.message('A mystery points box hasn\'t spawned yet')
             else: 
@@ -655,16 +684,16 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
 
-        elif cmd_whole in ['lottery', 'lotto', 'checklotto', 'checklottery']:
+        elif cmd_raw in ['lottery', 'lotto', 'checklotto', 'checklottery']:
             self.message(f'The lottery is at {self.lottery.get_value():,} points! Buy a ticket with !buytickets <# of tickets> for 5 points each!')
 
 
         elif cmd in ['buytickets', 'buyticket', 'buytix']:
-            if len(arguments) != 2:
+            if len(args) != 2:
                 self.syntax(cmd)
             else:
-                if self.illegal_value_check(arguments[1]):
-                    qty = int(arguments[1])
+                if self.illegal_value_check(args[1]):
+                    qty = int(args[1])
                     cost = qty * 5
                     if self.points_check(user, cost):
                         if qty > self.lottery.get_remaining_tickets():
@@ -675,26 +704,26 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
         elif cmd in ['tickets', 'ticket', 'tix']:
-            if len(arguments) == 1:
+            if len(args) == 1:
                 username = user
-            elif len(arguments) == 2:
-                username = util.word_fixer(arguments[1])
+            elif len(args) == 2:
+                username = util.word_fixer(args[1])
             else:
                 syntax(cmd)
 
-            if len(arguments) in [1, 2]:
+            if len(args) in [1, 2]:
                 if self.lottery.user_exists_check(username):
                     self.message(f'{username} has {self.lottery.get_tickets(username):,} lottery tickets.')
                 else:
                     self.message(f'{username} has 0 lottery tickets.')
 
 
-        # elif cmd_whole in ['bomb', 'bombsquad']:
+        # elif cmd_raw in ['bomb', 'bombsquad']:
         #     if bomb_squad.is_alive():
-        #         if len(arguments) == 1:
+        #         if len(args) == 1:
         #             self.message(f'Remaining players: {bomb_squad.get_players()}')
-        #         elif len(arguments) == 2:
-        #             arg = util.word_fixer(arguments[1])
+        #         elif len(args) == 2:
+        #             arg = util.word_fixer(args[1])
         #             if arg =='join':
         #                 if not bomb_squad.in_progress():
         #                     bomb_squad.join(user)
@@ -707,9 +736,9 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
         # elif cmd in ['cut', 'cutwire']:
-        #     if len(arguments) == 2:
+        #     if len(args) == 2:
         #         if user == bomb_squad.get_active_player():
-        #             wire_num = util.word_fixer(arguments[2])
+        #             wire_num = util.word_fixer(args[2])
         #             if illegal_value_check(wire_num):
         #                 wire_num = int(wire_num)
         #                 if wire_num in bomb_squad.get_avail_wires():
@@ -735,17 +764,17 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
             # else:
-            #       arg = util.word_fixer(arguments[1])
+            #       arg = util.word_fixer(args[1])
             #       if arg == 'join':
-            #           if len(arguments) == 2:
+            #           if len(args) == 2:
             #               if not bomb_squad.in_progress():
             #                   bomb_squad.join(user)
             #               else:
             #                   self.message('The bomb squad event is already in progress')
             #       elif arg in ['cut', 'select', 'cutwire', 'selectwire']:
-            #           if len(arguments) == 3:
+            #           if len(args) == 3:
             #               if user == bomb_squad.get_active_player():
-            #                   wire_num = util.word_fixer(arguments[2]) # we want to let users type !bomb cut #2
+            #                   wire_num = util.word_fixer(args[2]) # we want to let users type !bomb cut #2
             #                   if illegal_value_check(wire_num):
             #                       wire_num = int(wire_num)
             #                       if wire_num in bomb_squad.get_avail_wires():
@@ -787,10 +816,10 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
         # allow admins to spawn events
         elif cmd in ['event', 'spawnevent', 'spawn'] and user in util.admins:
-            if len(arguments) != 2:
+            if len(args) != 2:
                 self.syntax(cmd)
             else:
-                event_name = arguments[1]
+                event_name = args[1]
                 if event_name.lower() in ['box', 'mysterybox', 'mysterypointsbox']:
                     event_thread = threading.Thread(target=self.mystery_box_event)
                     event_thread.daemon = True
@@ -821,10 +850,10 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         ########################### REDEEM POINTS #########################
         elif cmd in ['redeem', 'redeempoints']:
             rewards = ['dejavu', '90s', 'gas', 'spacejam', 'countryroads', 'fitnessgram', 'skeleton', 'victoryell']
-            if len(arguments) != 2:
+            if len(args) != 2:
                 self.message('Syntax for that command is: !redeem <reward>. Type \"!redeem help\" for more info')
             else:
-                arg = arguments[1]
+                arg = args[1]
                 if arg == 'help':
                     rewards_list = ', '.join(rewards)
                     self.message(f'rewards cost 1000 points each. here is a list of all the rewards: {rewards_list}')
@@ -865,7 +894,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 permission = parsed_command[1]
                 output = parsed_command[2]
 
-                if cmd_whole == command_name:
+                if cmd_raw == command_name:
                     # admin commands
                     if permission == 'admin':
                         if user in util.admins:
