@@ -3,7 +3,7 @@ import irc.bot
 import requests
 import threading
 import json
-import queue
+# import queue
 from time import sleep
 
 # my own libraries
@@ -14,7 +14,7 @@ import redeem
 # placed all the event modules in their own folder
 import events.mystery_box as mystery_box
 import events.lottery as lottery
-import events.bomb_squad as bomb_squad
+# import events.bomb_squad as bomb_squad
 
 
 
@@ -45,7 +45,7 @@ import events.bomb_squad as bomb_squad
 # users can guarantee a win on lottery by buying max tickets and they'll always make a profit, find some way to balance this
 
 
-bomb_q = queue.Queue()
+# bomb_q = queue.Queue()
 
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
@@ -141,34 +141,34 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             print ('[lottery] no winners')
 
 
-    def bomb_event(self):
-        if not bomb_squad.is_alive():
-            print ('[bomb] starting')
-            bomb_squad.start()
-            self.message('Calling all bomb squad technicians, there\'s a bomb at the orphanage! You\'ll have one minute to join this event with !bomb join')
-            sleep(60)
-            if not bomb_squad.new_round():
-                print('[bomb] not enough players to start')
-                self.message('There aren\'t enough players to start the event.')
-                bomb_squad.cleanup()
+    # def bomb_event(self):
+    #     if not bomb_squad.is_alive():
+    #         print ('[bomb] starting')
+    #         bomb_squad.start()
+    #         self.message('Calling all bomb squad technicians, there\'s a bomb at the orphanage! You\'ll have one minute to join this event with !bomb join')
+    #         sleep(60)
+    #         if not bomb_squad.new_round():
+    #             print('[bomb] not enough players to start')
+    #             self.message('There aren\'t enough players to start the event.')
+    #             bomb_squad.cleanup()
 
 
-    def bomb_timer(self, active_player: str):
-        bomb_thread = threading.Thread(target=self.bomb_timeout, args=[active_player])
-        bomb_thread.daemon = True
-        bomb_thread.start()
+    # def bomb_timer(self, active_player: str):
+    #     bomb_thread = threading.Thread(target=self.bomb_timeout, args=[active_player])
+    #     bomb_thread.daemon = True
+    #     bomb_thread.start()
         # i can use queue module instead of writing to json files https://pymotw.com/2/Queue/
         # so instead of having to write to json files to make sure all my threads are using the same data, i can use queues
 
 
-    def bomb_timeout(self, active_player: str):
-        # if after 15 seconds a player hasn't made a choice, eliminate them from the game
-        sleep(15)
-        try:
-            temp = bomb_q.get()
-        except Queue.Empty:
-            self.message(f'{active_player}, you waited too long and the bomb blew up on you!')
-            bomb_squad.elim_player(active_player)
+    # def bomb_timeout(self, active_player: str):
+    #     # if after 15 seconds a player hasn't made a choice, eliminate them from the game
+    #     sleep(15)
+    #     try:
+    #         temp = bomb_q.get()
+    #     except Queue.Empty:
+    #         self.message(f'{active_player}, you waited too long and the bomb blew up on you!')
+    #         bomb_squad.elim_player(active_player)
 
  
 
@@ -346,15 +346,15 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 self.syntax(cmd)
             else:
                 # remove the ! at the beginning of the new command name if present
-                new_name = word_fixer(arguments[1])
-                common_commands_list = get_commands_list()
+                new_name = util.word_fixer(arguments[1])
+                common_commands_list = util.get_commands_list()
                 if new_name in common_commands_list:
                     self.message(new_name + ' command already exists')
 
                 # add the new command
                 else: 
                     common_commands_file_write = open(commands_file_string, "a")
-                    new_permission = word_fixer(arguments[2])
+                    new_permission = util.word_fixer(arguments[2])
                     common_commands_file_write.write('\n' + new_name + '::' + new_permission + '::')
                     for a in range(3, len(arguments)):
                         common_commands_file_write.write(arguments[a] + ' ')
@@ -370,13 +370,13 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 self.syntax(cmd)
             else: 
                 # remove ! at the beginning of the command name if present
-                name = word_fixer(arguments[1])
+                name = util.word_fixer(arguments[1])
 
                 # store commands.json in replace
                 # edit replace
                 # re-write commands.json with edited replace
                 replace = []
-                common_commands_list = get_commands_list()
+                common_commands_list = util.get_commands_list()
                 if name in common_commands_list: 
                     for common_commands in common_commands_list_full:
                         parsed_command = common_commands.split('::')
@@ -398,7 +398,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             if len(arguments) != 2:
                 self.syntax(cmd)
             else:
-                target = word_fixer(arguments[1])
+                target = util.word_fixer(arguments[1])
                 if target not in util.admins:
                     if target in self.blacklist:
                         self.message('that user is already banned')
@@ -412,13 +412,15 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             if len(arguments) != 2:
                 self.sytnax(cmd)
             else:
-                target = word_fixer(arguments[1])
+                target = util.word_fixer(arguments[1])
                 if target not in self.blacklist:
                     self.message('that user was not already banned')
                 else:
                     self.blacklist.remove(target)
                     util.write_blacklist(self.blacklist)
                     self.message(f'{target} has been unbanned from this bot')
+
+
 
 
 
@@ -430,7 +432,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 if self.add_user(user):
                     self.message(f'{user} has {self.points.get_points(user):,} points')
             elif len(arguments) == 2:
-                username = word_fixer(arguments[1])
+                username = util.word_fixer(arguments[1])
 
                 if username in ['top', 'richest']:
                     top = self.points.get_bot()
@@ -450,7 +452,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             if len(arguments) != 3:
                 self.syntax(cmd)
             else:
-                username = word_fixer(arguments[1])
+                username = util.word_fixer(arguments[1])
 
                 try:
                     add = int(arguments[2])
@@ -469,7 +471,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             if len(arguments) != 3:
                 self.syntax(cmd)
             else:
-                username = word_fixer(arguments[1])
+                username = util.word_fixer(arguments[1])
 
                 if arguments[2].lower() == 'all':
                         arguments[2] = self.points.get_points(username)
@@ -490,7 +492,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             if len(arguments) != 3:
                 self.syntax(cmd)
             else:
-                username = word_fixer(arguments[1])
+                username = util.word_fixer(arguments[1])
 
                 try:
                     value = int(arguments[2])
@@ -509,7 +511,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             if len(arguments) != 3:
                 self.syntax(cmd)
             else:
-                username = word_fixer(arguments[1])
+                username = util.word_fixer(arguments[1])
 
                 if username in util.everyone:
                     if self.illegal_value_check(arguments[2]):
@@ -528,7 +530,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             if len(arguments) != 3:
                 self.syntax(cmd)
             else:
-                username = word_fixer(arguments[1])
+                username = util.word_fixer(arguments[1])
 
                 if username in util.everyone:
                     if self.illegal_value_check(arguments[2]):
@@ -551,8 +553,8 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             if len(arguments) != 3:
                 self.syntax(cmd)
             else:
-                donator = word_fixer(user)
-                recipient = word_fixer(arguments[1])
+                donator = util.word_fixer(user)
+                recipient = util.word_fixer(arguments[1])
 
                 if arguments[2].lower() == 'all':
                     arguments[2] = self.points.get_points(donator)
@@ -676,7 +678,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             if len(arguments) == 1:
                 username = user
             elif len(arguments) == 2:
-                username = word_fixer(arguments[1])
+                username = util.word_fixer(arguments[1])
             else:
                 syntax(cmd)
 
@@ -687,39 +689,39 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                     self.message(f'{username} has 0 lottery tickets.')
 
 
-        elif cmd_whole in ['bomb', 'bombsquad']:
-            if bomb_squad.is_alive():
-                if len(arguments) == 1:
-                    self.message(f'Remaining players: {bomb_squad.get_players()}')
-                elif len(arguments) == 2:
-                    arg = word_fixer(arguments[1])
-                    if arg =='join':
-                        if not bomb_squad.in_progress():
-                            bomb_squad.join(user)
-                            self.message(f'{user} has joined the bomb squad event')
-                        else:
-                            self.message('The bomb squad event has already started.')
+        # elif cmd_whole in ['bomb', 'bombsquad']:
+        #     if bomb_squad.is_alive():
+        #         if len(arguments) == 1:
+        #             self.message(f'Remaining players: {bomb_squad.get_players()}')
+        #         elif len(arguments) == 2:
+        #             arg = util.word_fixer(arguments[1])
+        #             if arg =='join':
+        #                 if not bomb_squad.in_progress():
+        #                     bomb_squad.join(user)
+        #                     self.message(f'{user} has joined the bomb squad event')
+        #                 else:
+        #                     self.message('The bomb squad event has already started.')
 
-            else:
-                self.message('The bomb squad event hasn\'t started yet.') 
+        #     else:
+        #         self.message('The bomb squad event hasn\'t started yet.') 
 
 
-        elif cmd in ['cut', 'cutwire']:
-            if len(arguments) == 2:
-                if user == bomb_squad.get_active_player():
-                    wire_num = word_fixer(arguments[2])
-                    if illegal_value_check(wire_num):
-                        wire_num = int(wire_num)
-                        if wire_num in bomb_squad.get_avail_wires():
-                            self.message(f'{user} cuts wire #{wire_num} and...')
-                            sleep(3)
-                            self.message(bomb_squad.choose_wire(user, wire_num))
-                        else:
-                            self.message('You can\'t cut that wire.')
-                else:
-                    self.message(f'It\'s {bomb_squad.get_active_player()}\'s turn, not yours.')
-            else:
-                syntax(cmd)
+        # elif cmd in ['cut', 'cutwire']:
+        #     if len(arguments) == 2:
+        #         if user == bomb_squad.get_active_player():
+        #             wire_num = util.word_fixer(arguments[2])
+        #             if illegal_value_check(wire_num):
+        #                 wire_num = int(wire_num)
+        #                 if wire_num in bomb_squad.get_avail_wires():
+        #                     self.message(f'{user} cuts wire #{wire_num} and...')
+        #                     sleep(3)
+        #                     self.message(bomb_squad.choose_wire(user, wire_num))
+        #                 else:
+        #                     self.message('You can\'t cut that wire.')
+        #         else:
+        #             self.message(f'It\'s {bomb_squad.get_active_player()}\'s turn, not yours.')
+        #     else:
+        #         syntax(cmd)
 
 
 
@@ -733,7 +735,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
             # else:
-            #       arg = word_fixer(arguments[1])
+            #       arg = util.word_fixer(arguments[1])
             #       if arg == 'join':
             #           if len(arguments) == 2:
             #               if not bomb_squad.in_progress():
@@ -743,7 +745,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             #       elif arg in ['cut', 'select', 'cutwire', 'selectwire']:
             #           if len(arguments) == 3:
             #               if user == bomb_squad.get_active_player():
-            #                   wire_num = word_fixer(arguments[2]) # we want to let users type !bomb cut #2
+            #                   wire_num = util.word_fixer(arguments[2]) # we want to let users type !bomb cut #2
             #                   if illegal_value_check(wire_num):
             #                       wire_num = int(wire_num)
             #                       if wire_num in bomb_squad.get_avail_wires():
@@ -877,30 +879,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
 
-
-def word_fixer(input: str) -> str:
-    if input[0] in ['!', '@', '#']:
-        return input[1:].lower()
-    else:
-        return input.lower()
-
-
-def get_commands_list() -> list:
-    commands_file_string = 'json/commands.json'
-
-    # common_commands_file is the file we'll store commands anyone can use and their functionalities
-    # syntax for the file is [command name]::[permission]::[output]
-    common_commands_file = open(commands_file_string, "r")
-
-    #reads each line without the \n
-    common_commands_list_full = [line.strip() for line in common_commands_file]
-    common_commands_list = []
-    for com in common_commands_list_full:
-        common_commands_list.append(com[:com.find('::')])
-
-    common_commands_file.close()
-
-    return common_commands_list
 
 
 def main():
