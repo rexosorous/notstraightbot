@@ -39,6 +39,7 @@ class Lottery:
         for _ in range(qty):
             self.lottery_dict[str(self.generate_ticket())] = player
         self.lottery_dict['value'] += qty * 5
+        self.points.change_points(player, qty*5, '-')
         self.save()
 
     def draw(self) -> str:
