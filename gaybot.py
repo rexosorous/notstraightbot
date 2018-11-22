@@ -854,7 +854,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 self.message('Syntax for that command is: !redeem <reward>. Type \"!redeem help\" for more info')
             elif len(args) == 1:
                 rewards_list = ', '.join(rewards)
-                    self.message(f'rewards cost 1000 points each. here is a list of all the rewards: {rewards_list}')
+                self.message(f'rewards cost 1000 points each. here is a list of all the rewards: {rewards_list}')
             else:
                 arg = args[1]
                 if arg == 'help':
