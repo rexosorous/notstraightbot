@@ -34,5 +34,7 @@
 	"ban": "Syntax for this command is: !ban <user>",
 	"unban": "Syntax for this command is: !unban <user>",
 	"redeem": "Syntax for this command is: !redeem <reward>",
-	"redeempoints": "Syntax for this command is: !redeem <reward>"
+	"redeempoints": "Syntax for this command is: !redeem <reward>",
+	"removestat": "Syntax for this command is: !removestat <trick> <'fail'/'success'>",
+	"statremove": "Syntax for this command is: !statremove <trick> <'fail'/'success'>"
 }

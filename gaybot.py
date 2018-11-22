@@ -10,6 +10,7 @@ from time import sleep
 import points
 import utilities as util
 import redeem
+import stats
 
 # placed all the event modules in their own folder
 import events.mystery_box as mystery_box
@@ -19,8 +20,6 @@ import events.lottery as lottery
 
 
 ############ TO DO #################
-
-# learn about classes so i don't have to keep loading json files
 
 # Poll
 # play (youtube link to song)
@@ -50,13 +49,10 @@ import events.lottery as lottery
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
     def __init__(self, username, client_id, token, channel):
-        self.blacklist = util.load_blacklist()
-
         self.client_id = client_id
         self.token = token
         self.channel = '#' + channel
 
-        self.points = points.Points()
 
         # Get the channel id, we will need this for v5 API calls
         url = 'https://api.twitch.tv/kraken/users?login=' + channel
@@ -70,8 +66,12 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         print (f'Connecting to {server} on port {port}...')
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port, 'oauth:'+token)], username, username)
 
+
+        self.blacklist = util.load_blacklist()
+        self.points = points.Points()
         self.mystery_box = mystery_box.MysteryBox(self.points)
         self.lottery = lottery.Lottery(self.points)
+        self.stats = stats.Stats()
 
 
     def message(self, output: str):
@@ -869,6 +869,32 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
 
+        ########################### STATS ###############################
+        # !stat list
+        # !stat keyesbump
+        # !stat keyesbump success
+        # !removestat keyesbump fail
+
+        elif cmd in ['stat', 'stats']:
+            if len(args) == 2:
+                if args[1] in ['list', 'tricks', 'trickslist', 'all']:
+                    self.message(f'here\'s a list of all the tricks i keep stats for: {self.stats.get_tricks()}')
+                else:
+                    self.message(self.stats.get_stat(args[1]))
+            if len(args) == 3:
+                if args[2] not in ['success', 'fail', 'failure']:
+                    self.message('the second argument for this command must be \'success\' or \'fail\'')
+                self.message(self.stats.change_stat(args[1], args[2], '+'))
+
+        elif cmd in ['removestat', 'statremove']:
+            if len(args) != 3:
+                self.syntax(cmd)
+            else:
+                if args[2] not in ['success', 'fail', 'failure']:
+                    self.message('the second argument for this command must be \'success\' or \'fail\'')
+                self.message(self.stats.change_stat(args[1], args[2], '-'))
+
+
 
 
 
@@ -934,10 +960,12 @@ def main():
         bot.message('bot has committed honorable sudoku')
         bot.points.save()
         bot.lottery.save()
+        bot.stats.save()
     except:
         bot.message('someone murdered me.')
         bot.points.save()
         bot.lottery.save()
+        bot.stats.save()
         raise
 
 if __name__ == "__main__":
