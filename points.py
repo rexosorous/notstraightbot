@@ -1,7 +1,4 @@
-import requests
 import operator
-from time import sleep
-
 import utilities as util
 
 file_string = 'json/points_table.json'
@@ -13,10 +10,13 @@ class Points:
     def check_user_exists(self, user: str) -> bool:
         return user in self.points_dict
 
+    def add_user(self, user: str):
+        self.points_dict[user] = 100
+
     def remove_user(self, user: str):
         self.points_dict.pop(user, None)
 
-    def get_points(self, user: str):
+    def get_points(self, user: str) -> int:
         return self.points_dict[user]
 
     def get_bot(self) -> list:

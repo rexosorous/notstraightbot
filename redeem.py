@@ -7,6 +7,7 @@ lines = 97 # numpad 1
 skele = 98 # numpad 2
 off = 96 # numpad 0
 
+rewards = ['dejavu', '90s', 'gas', 'spacejam', 'countryroads', 'fitnessgram', 'skeleton', 'victoryell']
 
 def play_sound(cmd: str):
     # if a sound is already playing, reset the mixer in case there's a different sample rate

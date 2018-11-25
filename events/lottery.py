@@ -1,15 +1,11 @@
-import points
 import utilities as util
 
 
 file_string = 'json/lottery_info.json'
 
-
 class Lottery:
-    def __init__(self, points):
-        self.points = points
+    def __init__(self):
         self.lottery_dict = util.load_file(file_string)
-
         self.init_val = 1000
         self.max_ticket_number = 5000
 
@@ -35,18 +31,16 @@ class Lottery:
             ticket = util.rng(1, self.max_ticket_number)
         return ticket
 
-    def buy_ticket(self, player: str, qty: int):
+    def buy_tickets(self, player: str, qty: int):
         for _ in range(qty):
             self.lottery_dict[str(self.generate_ticket())] = player
         self.lottery_dict['value'] += qty * 5
-        self.points.change_points(player, qty*5, '-')
         self.save()
 
     def draw(self) -> str:
         winning_ticket = str(util.rng(1, self.max_ticket_number))
         if winning_ticket in self.lottery_dict:
             winner = self.lottery_dict[winning_ticket]
-            self.points.change_points(winner, self.lottery_dict['value'], '+')
             return winner
         self.clean_tickets()
 

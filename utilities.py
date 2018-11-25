@@ -29,7 +29,7 @@ def load_blacklist() -> dict:
         return json.load(file)
 
 def write_blacklist(rewrite: dict):
-    with open('json/blacklist.json') as file:
+    with open('json/blacklist.json', 'w') as file:
         json.dump(rewrite, file, indent=4)
 
 
