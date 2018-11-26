@@ -1,7 +1,6 @@
 import threading
 
 import utilities as util
-import points
 import redeem
 
 currency = 'GayBux'
@@ -127,12 +126,16 @@ class Commands:
             return 'incorrect command syntax'
         except ValueError:
             return 'please use integers'
+        except KeyError:
+            return 'that user is banned from this bot'
         except AdminError:
             return 'you must be an admin to do that'
         except BalanceError:
             return 'you have insufficient funds'
         except IllegalValueError:
             return 'you can\'t use negative numbers'
+        except:
+            return 'unknown error'
 
 
 
@@ -266,11 +269,11 @@ class Commands:
         username = self.user if self.arg_count == 1 else util.word_fixer(self.args[1])
 
         if username in ['top', 'richest']:
-            top = self.points.get_bot()
-            return f'{top[len(top)-1][0]} is the richest with {top[len(top)-1][1]:,} {currency}! POGGERS'
+            top = self.points.get_richest()
+            return f'{top[0][0]} is the richest with {top[0][1].points:,} {currency}! POGGERS'
         elif username in['bottom', 'bot', 'poorest']:
-            bot = self.points.get_bot()
-            return f'{bot[0][0]} is the poorest with {bot[0][1]:,} {currency}. PressF'
+            bot = self.points.get_richest()
+            return f'{bot[len(bot)-1][0]} is the poorest with {bot[len(bot)-1][1].points:,} {currency}. PressF'
 
         return f'{username} has {self.points.get_points(username):,} {currency}'
 
@@ -348,7 +351,7 @@ class Commands:
 
     def gamble(self):
         val = self.point_converter(self.user, self.args[1])
-        result = util.rng(0, 100)
+        result = util.rng(self.points.users[self.user].luck, 100)
 
         if result < 50:
             self.points.change_points(self.user, val, '-')

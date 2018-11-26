@@ -1,60 +1,81 @@
 import operator
 import utilities as util
+from gaybot import User
 
-file_string = 'json/points_table.json'
+file_string = 'json/users.json'
 
 class Points:
     def __init__(self):
-        self.points_dict = util.load_file(file_string)
+        self.users = util.pickle_load(file_string) # keys = usernames: values = username objects
 
-    def check_user_exists(self, user: str) -> bool:
-        return user in self.points_dict
 
-    def add_user(self, user: str):
-        self.points_dict[user] = 100
+    def check_user_exists(self, username: str) -> bool:
+        return username in self.users
 
-    def remove_user(self, user: str):
-        self.points_dict.pop(user, None)
 
-    def get_points(self, user: str) -> int:
-        return self.points_dict[user]
+    def add_user(self, username: str):
+        self.users[username] = User()
 
-    def get_bot(self) -> list:
-        return sorted(self.points_dict.items(), key=lambda kv: kv[1])
 
-    def update_points(self, usernames = util.get_viewers()):
-        for user in usernames:
-            if user in util.load_blacklist():
+    def remove_user(self, username: str):
+        self.users.pop(username, None)
+
+
+    def get_points(self, username: str) -> int:
+        if not self.check_user_exists(username):
+            if viewer in util.get_viewers() and viewer not in util.load_blacklist():
+                self.add_user(username)
+        return self.users[username].points
+
+
+    def get_richest(self) -> [tuple]:
+    # returns a list containing all users sorted from richest to poorest
+    # each user is itself a tuple with tuple[0] being the username and tuple[1] being the user object
+    # tuple[0][0] returns the username with the richest points
+    # tuple[0][1] returns the user object of the richest user
+        return sorted(list(self.users.items()), key=lambda x: x[1].points, reverse=True)
+        
+
+    def update_points(self, viewers = util.get_viewers()):
+        for v in viewers:
+            if v in util.load_blacklist():
                 continue
-            if user not in self.points_dict:
-                self.points_dict[user] = 100
-            elif user in util.admins:
-                self.points_dict[user] += 3
+            if v not in self.users:
+                self.add_user(v)
             else:
-                self.points_dict[user] += 1
+                self.users[v].points += self.users[v].income
 
-    def change_points(self, user: str, points: int, op: str):
+
+    def change_points(self, username: str, points: int, op: str):
         # op takes in "+", "-", ...
         ops = {"+": operator.iadd,
                "-": operator.isub,
                "*": operator.imul,
                "/": operator.ifloordiv}
-        update_set = {user}
-        if user in util.everyone:
+        update_set = {username}
+        if username in util.everyone:
             viewers = util.get_viewers()
             blacklist = util.load_blacklist()
             update_set.update({v for v in viewers if v not in blacklist})
         for viewer in update_set:
-            self.points_dict[viewer] = ops[op](self.points_dict[viewer], points)
+            if not self.check_user_exists(username):
+                if viewer in util.get_viewers() and viewer not in util.load_blacklist():
+                    self.add_user(username)
+            self.users[viewer].points = ops[op](self.users[viewer].points, points)
 
-    def set_points(self, user: str, points: int):
-        update_set = {user}
-        if user in util.everyone:
+
+    def set_points(self, username: str, points: int):
+        update_set = {username}
+        if username in util.everyone:
             viewers = util.get_viewers()
             blacklist = util.load_blacklist()
             update_set.update({v for v in viewers if v not in blacklist})
         for viewer in update_set:
-            self.points_dict[viewer] = points
+            if not self.check_user_exists(username):
+                if viewer in util.get_viewers() and viewer not in util.load_blacklist():
+                    self.add_user(username)            
+            self.users[viewer].points = points
+
 
     def save(self):
-        util.write_file(file_string, self.points_dict)
+        util.pickle_write(file_string, self.users)

@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+import pickle
 from random import randint
 from time import sleep
 
@@ -11,28 +12,39 @@ def load_file(file_name: str) -> dict:
     with open(file_name) as file:
         return json.load(file)
 
+
 def write_file(file_name: str, rewrite):
     with open(file_name, 'w') as file:
         json.dump(rewrite, file, indent=4)
+
 
 def remove_file(file_name: str):
     if os.path.exists(file_name):
         os.remove(file_name)
 
+
 def file_exists(file_name: str) -> bool:
     return os.path.exists(file_name)
 
+
+def pickle_load(file_name: str) -> dict:
+    with open(file_name, 'rb') as file:
+        return pickle.load(file)
+
+
+def pickle_write(file_name: str, rewrite):
+    with open(file_name, 'wb') as file:
+        pickle.dump(rewrite, file)
 
 
 def load_blacklist() -> dict:
     with open('json/blacklist.json') as file:
         return json.load(file)
 
+
 def write_blacklist(rewrite: dict):
     with open('json/blacklist.json', 'w') as file:
         json.dump(rewrite, file, indent=4)
-
-
 
 
 def get_viewers() -> [str]:
@@ -46,11 +58,8 @@ def get_viewers() -> [str]:
     return names['chatters']['viewers'] + names['chatters']['moderators']
     
 
-
-
 def rng(min_value: int, max_value: int) -> int:
     return randint(min_value, max_value)
-
 
 
 def word_fixer(input: str) -> str:
@@ -58,21 +67,3 @@ def word_fixer(input: str) -> str:
         return input[1:].lower()
     else:
         return input.lower()
-
-
-def get_commands_list() -> list:
-    commands_file_string = 'json/commands.json'
-
-    # common_commands_file is the file we'll store commands anyone can use and their functionalities
-    # syntax for the file is [command name]::[permission]::[output]
-    common_commands_file = open(commands_file_string, "r")
-
-    #reads each line without the \n
-    common_commands_list_full = [line.strip() for line in common_commands_file]
-    common_commands_list = []
-    for com in common_commands_list_full:
-        common_commands_list.append(com[:com.find('::')])
-
-    common_commands_file.close()
-
-    return common_commands_list

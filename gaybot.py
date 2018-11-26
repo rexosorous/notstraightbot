@@ -15,6 +15,9 @@ from utilities import rng
 
 ############ TO DO #################
 
+# make users into objects
+# create a challenge command
+
 # Poll
 # play (youtube link to song)
 # 
@@ -26,15 +29,19 @@ from utilities import rng
 #   c. mario party - https://www.youtube.com/watch?v=GXTRNSuC_YQ
 #   d. russian roulette
 #   e. don't pop the balloon
-# challenge
 
 # REEDEM POINTS FOR
 # control music
 # text to speech
 
-# make variable names consistent: events should have 'players' not 'users'
-# find a better way to display commands when user types !help
-# users can guarantee a win on lottery by buying max tickets and they'll always make a profit, find some way to balance this
+class User:
+    points = 100
+    luck = 0 # determines gamble floor. MAX 100
+    income = 1 # determines how many points a user gains every 15s
+
+
+
+
 
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
@@ -95,7 +102,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     def do_command(self, e, cmd_raw):
         args = cmd_raw.lower().split(' ')
         user = e.source[:e.source.find('!')]
-
         cmd = commands.Commands(user, args, self.points, self.events)
         self.message(cmd.execute())
 
