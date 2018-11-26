@@ -89,6 +89,24 @@ class Commands:
 
             'redeem': [self.redeem, f'rewards cost 1000 {currency} each. here is a list of all the rewards: {", ".join(redeem.rewards)}', '!redeem <reward>'],
 
+            'luck': [self.check_luck, 'shows how lucky someone is when they gamble', '!luck <user>'],
+
+            'setluck': [self.set_luck, 'sets a user\'s luck value', '!setluck <user> <amount>'],
+
+            'addluck': [self.add_luck, 'adds to a user\'s luck value', '!addluck <user> <amount>'],
+
+            'subluck': [self.sub_luck, 'subtracts from a user\'s luck value', '!subluck <user> <amount>'],
+
+            'income': [self.check_income, f'shows how many {currency} a user makes every 15 seconds', '!income <user>'],
+
+            'setincome': [self.set_income, 'sets a user\'s income', '!setincome <user> <amount>'],
+
+            'payraise': [self.add_income, 'adds to a user\'s income', '!payraise <user> <amount>'],
+            'addincome': [self.add_income, 'adds to a user\'s income', '!payraise <user> <amount>'],
+
+            'paycut': [self.sub_income, 'subtracts from a user\'s income', '!paycut <user> <amount>'],
+            'subincome': [self.sub_income, 'subtracts from a user\'s income', '!paycut <user> <amount>'],
+
             'event': [self.spawn_event, 'spawns an event', '!event <event name>'],
             'spawnevent': [self.spawn_event, 'spawns an event', '!event <event name>'],
             'spawn': [self.spawn_event, 'spawns an event', '!event <event name>'],
@@ -172,9 +190,9 @@ class Commands:
 
     def help(self):
         help_dict = {
-            'admin': ['!ban', '!unban', '!addpoints', '!subpoints', '!multpoints', '!divpoints', '!setpoints', '!admingamble', '!event'], 
+            'admin': ['!ban', '!unban', '!addpoints', '!subpoints', '!multpoints', '!divpoints', '!setpoints', '!admingamble', '!luck', '!setluck', '!addluck', '!subluck', '!setincome', '!addincome', '!subincome', '!event'], 
             'basic': ['!bttvemotes', '!admins', '!banlist', '!eventlist''!spaceout', '!memetext', '!discord', '!weather'],
-            'points': ['!points', '!givepoints', '!gamble', '!redeem'], 
+            'points': ['!points', '!givepoints', '!gamble', '!redeem', '!income'], 
             'mysterybox': ['!bid', '!topbid'], 
             'lottery': ['!lotto', '!tix', '!buytix']}
 
@@ -387,6 +405,79 @@ class Commands:
         redeem_thread.start()
 
         return f'redeeming reward...'
+
+
+    def check_luck(self):
+        if self.user not in util.admins:
+            raise AdminError
+
+        username = util.word_fixer(self.args[1])
+        return f'{username} has {self.points.users[username].luck} luck'
+
+
+    def set_luck(self):
+        if self.user not in util.admins:
+            raise AdminError
+
+        username = util.word_fixer(self.args[1])
+        new_luck = int(self.args[2])
+        self.points.users[username].luck = new_luck
+        return f'{username} now has {new_luck} luck'
+
+
+    def add_luck(self):
+        if self.user not in util.admins:
+            raise AdminError
+
+        username = util.word_fixer(self.args[1])
+        add_luck = int(self.args[2])
+        self.points.users[username].luck += add_luck
+        return f'{username} now has {self.points.users[username].luck} luck'
+
+
+    def sub_luck(self):
+        if self.user not in util.admins:
+            raise AdminError
+
+        username = util.word_fixer(self.args[1])
+        sub_luck = int(self.args[2])
+        self.points.users[username].luck -= sub_luck
+        return f'{username} now has {self.points.users[username].luck} luck'
+
+
+    def check_income(self):
+        username = self.user if self.arg_count == 1 else util.word_fixer(self.args[1])
+        return f'{username} has an income of {self.points.users[username].income:,} {currency}/15s'
+
+
+    def set_income(self):
+        if self.user not in util.admins:
+            raise AdminError
+        
+        username = util.word_fixer(self.args[1])
+        new_income = int(self.args[2])
+        self.points.users[username].income = new_income
+        return f'{username} now has an income of {new_income:,} {currency}/15s'
+
+
+    def add_income(self):
+        if self.user not in util.admins:
+            raise AdminError
+        
+        username = util.word_fixer(self.args[1])
+        add_income = int(self.args[2])
+        self.points.users[username].income += add_income
+        return f'{username} now has an income of {self.points.users[username].income:,} {currency}/15s'
+
+
+    def sub_income(self):
+        if self.user not in util.admins:
+            raise AdminError
+        
+        username = util.word_fixer(self.args[1])
+        sub_income = int(self.args[2])
+        self.points.users[username].income += sub_income
+        return f'{username} now has an income of {self.points.users[username].income:,} {currency}/15s'
 
 
 

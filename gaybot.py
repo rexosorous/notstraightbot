@@ -15,13 +15,10 @@ from utilities import rng
 
 ############ TO DO #################
 
-# make users into objects
 # create a challenge command
+# create events related to income and luck
 
-# Poll
-# play (youtube link to song)
-# 
-# POINTS RELATED COMMANDS
+# event ideas
 # trivia
 # betting
 #   a. pick a number - fixed buy in and winner (closest to #) wins the whole pot
@@ -30,9 +27,10 @@ from utilities import rng
 #   d. russian roulette
 #   e. don't pop the balloon
 
-# REEDEM POINTS FOR
-# control music
+# redeem ideas
 # text to speech
+
+
 
 class User:
     points = 100
