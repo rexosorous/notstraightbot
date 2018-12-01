@@ -54,9 +54,11 @@ class Commands:
             'space': [self.space_out, 'inserts spaces between every character in the phrase it\'s given', '!spaceout <text>'],
             'spaceout': [self.space_out, 'inserts spaces between every character in the phrase it\'s given', '!spaceout <text>'],
 
-            'memetext': [self.meme_text, 'capitalizes every other letter in the phrase it\'s given', '!memetext <text>'],
-            'spongetext': [self.meme_text, 'capitalizes every other letter in the phrase it\'s given', '!memetext <text>'],
-            'spongebobtext': [self.meme_text, 'capitalizes every other letter in the phrase it\'s given', '!memetext <text>'],
+            'memetext': [self.meme_text, 'capitalizes a random number of characters in the phrase it\'s given', '!memetext <text>'],
+            'spongetext': [self.meme_text, 'capitalizes a random number of characters in the phrase it\'s given', '!memetext <text>'],
+            'spongebobtext': [self.meme_text, 'capitalizes a random number of characters in the phrase it\'s given', '!memetext <text>'],
+
+            'mock': [self.mock, 'converts a user\'s last message to memetext', '!mock <user>'],
 
             'discord': [self.discord, 'gives the link to the channel\'s discord', '!discord'],
 
@@ -89,7 +91,7 @@ class Commands:
 
             'redeem': [self.redeem, f'rewards cost 1000 {currency} each. here is a list of all the rewards: {", ".join(redeem.rewards)}', '!redeem <reward>'],
 
-            'luck': [self.check_luck, 'shows how lucky someone is when they gamble', '!luck <user>'],
+            'luck': [self.check_luck, 'shows how lucky someone is when they gamble. a user can get a max value of 20 without admin influence', '!luck <user>'],
 
             'setluck': [self.set_luck, 'sets a user\'s luck value', '!setluck <user> <amount>'],
 
@@ -98,8 +100,12 @@ class Commands:
             'subluck': [self.sub_luck, 'subtracts from a user\'s luck value', '!subluck <user> <amount>'],
 
             'income': [self.check_income, f'shows how many {currency} a user makes every 15 seconds', '!income <user>'],
+            'pay': [self.check_income, f'shows how many {currency} a user makes every 15 seconds', '!income <user>'],
+            'wage': [self.check_income, f'shows how many {currency} a user makes every 15 seconds', '!income <user>'],
 
             'setincome': [self.set_income, 'sets a user\'s income', '!setincome <user> <amount>'],
+            'setpay': [self.set_income, 'sets a user\'s income', '!setincome <user> <amount>'],
+            'setwage': [self.set_income, 'sets a user\'s income', '!setincome <user> <amount>'],
 
             'payraise': [self.add_income, 'adds to a user\'s income', '!payraise <user> <amount>'],
             'addincome': [self.add_income, 'adds to a user\'s income', '!payraise <user> <amount>'],
@@ -259,13 +265,17 @@ class Commands:
     def meme_text(self):
     # converts 'hello world' to 'hElLo WoRlD'
         meme_string = '' # python strings are immutable so we can't edit them directly
-        cbool = False # true = make uppercase
-
         for char in ' '.join(self.args[1:]):
-            meme_string += char.upper() if cbool else char # add the char to meme_string
-            if char.isalpha(): # alternates capilization, ONLY if the character is a letter (not spaces or numbers)
-                cbool = not cbool
+            meme_string += char.upper() if util.rng(0, 1) == 1 else char # randomly capitalize each character
+        return meme_string
 
+
+    def mock(self):
+    # converts a user's last message to meme string similar to meme_text
+        target = self.args[1]
+        meme_string = ''
+        for char in self.points.users[target].last_message:
+            meme_string += char.upper() if util.rng(0, 1) == 1 else char
         return meme_string
 
 
@@ -432,7 +442,7 @@ class Commands:
         username = util.word_fixer(self.args[1])
         add_luck = int(self.args[2])
         self.points.users[username].luck += add_luck
-        return f'{username} now has {self.points.users[username].luck} luck'
+        return f'{username} is getting more lucky! luck: {self.points.users[username].luck} gachiGasm'
 
 
     def sub_luck(self):
@@ -442,7 +452,7 @@ class Commands:
         username = util.word_fixer(self.args[1])
         sub_luck = int(self.args[2])
         self.points.users[username].luck -= sub_luck
-        return f'{username} now has {self.points.users[username].luck} luck'
+        return f'{username} is getting less lucky. luck: {self.points.users[username].luck} neverLucky'
 
 
     def check_income(self):
@@ -467,7 +477,7 @@ class Commands:
         username = util.word_fixer(self.args[1])
         add_income = int(self.args[2])
         self.points.users[username].income += add_income
-        return f'{username} now has an income of {self.points.users[username].income:,} {currency}/15s'
+        return f'{username} has been given a payraise! your income is now {self.points.users[username].income:,} {currency}/15s gachiHYPER'
 
 
     def sub_income(self):
@@ -477,7 +487,7 @@ class Commands:
         username = util.word_fixer(self.args[1])
         sub_income = int(self.args[2])
         self.points.users[username].income += sub_income
-        return f'{username} now has an income of {self.points.users[username].income:,} {currency}/15s'
+        return f'{username} has been given a paycut! your income is now {self.points.users[username].income:,} {currency}/15s PepeHands'
 
 
 

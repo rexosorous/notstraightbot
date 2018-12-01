@@ -9,16 +9,19 @@ from time import sleep
 import points
 import commands
 import events.bot_events as bot_events
-from utilities import rng
+import utilities as util
 
 
 
 ############ TO DO #################
 
 # create a challenge command
-# create events related to income and luck
+# create events related to income and luck. winning increases, losing decreases.
+# unit tests
 
 # event ideas
+# travelers go on a journey (monica's idea)
+# team events. everyone in chat tries to do something and everyone wins or loses
 # trivia
 # betting
 #   a. pick a number - fixed buy in and winner (closest to #) wins the whole pot
@@ -29,6 +32,7 @@ from utilities import rng
 
 # redeem ideas
 # text to speech
+# a one time use that will increase payout from gambling or something
 
 
 
@@ -36,6 +40,7 @@ class User:
     points = 100
     luck = 0 # determines gamble floor. MAX 100
     income = 1 # determines how many points a user gains every 15s
+    last_message = '' # used for !mock command
 
 
 
@@ -91,10 +96,13 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
     def on_pubmsg(self, c, e):
         # If a chat message starts with an exclamation point, try to run it as a command
+        username = e.source[:e.source.find('!')]
         if e.arguments[0][:1] == '!':
             cmd_raw = e.arguments[0][1:]
-            print ('[' + e.source[:e.source.find('!')] + '] ' + cmd_raw)
+            print ('[' + username + '] ' + cmd_raw)
             self.do_command(e, cmd_raw)
+        elif username not in util.load_blacklist():
+            self.points.users[username].last_message = e.arguments[0]
 
 
     def do_command(self, e, cmd_raw):
@@ -115,9 +123,9 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         time_min = 15 # in minutes
         time_max = 30 # in minutes
         while True:
-            sleep(rng(time_min * 60, time_max * 60)) # conver from min to seconds
+            sleep(util.rng(time_min * 60, time_max * 60)) # convert from min to seconds
             event_list = ['box', 'lotto']
-            event_number = rng(0, len(event_list) - 1)
+            event_number = util.rng(0, len(event_list) - 1)
             self.events.start_event(event_list[event_number])
 
 

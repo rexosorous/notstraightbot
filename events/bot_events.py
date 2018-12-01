@@ -71,7 +71,8 @@ class BotEvents:
         sleep(3)
         if winner:
             self.points.change_points(winner, self.lottery.get_value(), '+')
-            self.message(f'{winner} won the lottery! you won {self.lottery.get_value():,} {currency}, giving you {self.points.get_points(winner):,} {currency} total! EZ Clap')
+            self.points.users[winner].luck += 5
+            self.message(f'{winner} won the lottery! you won {self.lottery.get_value():,} {currency} and 5 luck for gambling! EZ Clap')
             self.lottery.cleanup()
             print (f'[lottery] {winner} won the lottery')
         else:
