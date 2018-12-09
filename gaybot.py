@@ -15,8 +15,6 @@ import utilities as util
 
 ############ TO DO #################
 
-# checking non existent users results in [user] is banned
-
 # create a challenge command
 # create events related to income and luck. winning increases, losing decreases.
 # unit tests

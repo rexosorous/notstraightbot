@@ -151,7 +151,7 @@ class Commands:
         except ValueError:
             return 'please use integers'
         except KeyError:
-            return 'that is either banned or not in chat'
+            return 'that user is either banned or not in chat'
         except AdminError:
             return 'you must be an admin to do that'
         except BalanceError:
