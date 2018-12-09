@@ -15,6 +15,8 @@ import utilities as util
 
 ############ TO DO #################
 
+# checking non existent users results in [user] is banned
+
 # create a challenge command
 # create events related to income and luck. winning increases, losing decreases.
 # unit tests
@@ -97,6 +99,8 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     def on_pubmsg(self, c, e):
         # If a chat message starts with an exclamation point, try to run it as a command
         username = e.source[:e.source.find('!')]
+        if username not in self.points.users:
+            self.points.add_user(username)
         if e.arguments[0][:1] == '!':
             cmd_raw = e.arguments[0][1:]
             print ('[' + username + '] ' + cmd_raw)

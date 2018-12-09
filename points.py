@@ -3,6 +3,11 @@ import utilities as util
 from gaybot import User
 
 file_string = 'json/users.json'
+ops = {"+": operator.iadd,
+       "-": operator.isub,
+       "*": operator.imul,
+       "/": operator.ifloordiv}
+
 
 class Points:
     def __init__(self):
@@ -47,11 +52,6 @@ class Points:
 
 
     def change_points(self, username: str, points: int, op: str):
-        # op takes in "+", "-", ...
-        ops = {"+": operator.iadd,
-               "-": operator.isub,
-               "*": operator.imul,
-               "/": operator.ifloordiv}
         update_set = {username}
         if username in util.everyone:
             viewers = util.get_viewers()
@@ -75,6 +75,10 @@ class Points:
                 if viewer in util.get_viewers() and viewer not in util.load_blacklist():
                     self.add_user(username)            
             self.users[viewer].points = points
+
+
+    def change_luck(self, username: str, val: int):
+        users[username].luck = users[username].luck + val if users[username].luck + val < 20 else 20
 
 
     def save(self):

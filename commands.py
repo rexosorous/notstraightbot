@@ -275,7 +275,7 @@ class Commands:
         target = self.args[1]
         meme_string = ''
         for char in self.points.users[target].last_message:
-            meme_string += char.upper() if util.rng(0, 1) == 1 else char
+            meme_string += char.upper() if util.rng(0, 1) == 1 else char.lower()
         return meme_string
 
 
