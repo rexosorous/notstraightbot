@@ -177,7 +177,7 @@ class Commands:
     # converts user input into an int if possible
     # raises an error if the user is trying to use a negative number or if the user doesn't have enough points
         if val == 'all':
-            self.args[1] = self.points.get_points(username)
+            val = self.points.get_points(username)
         rval = int(val)
 
         if rval < 1:
