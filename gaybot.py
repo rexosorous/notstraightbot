@@ -119,6 +119,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             self.points.update_points()
             self.points.save()
             sleep(15)
+            print ('points given')
 
    
     def event_timer(self):
