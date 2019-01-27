@@ -197,17 +197,17 @@ class Commands:
     def help(self):
         help_dict = {
             'admin': ['!ban', '!unban', '!addpoints', '!subpoints', '!multpoints', '!divpoints', '!setpoints', '!admingamble', '!luck', '!setluck', '!addluck', '!subluck', '!setincome', '!addincome', '!subincome', '!event'], 
-            'basic': ['!bttvemotes', '!admins', '!banlist', '!eventlist''!spaceout', '!memetext', '!discord', '!weather'],
+            'basic': ['!bttvemotes', '!admins', '!banlist', '!eventlist', '!spaceout', '!memetext', '!discord', '!weather'],
             'points': ['!points', '!givepoints', '!gamble', '!redeem', '!income'], 
             'mysterybox': ['!bid', '!topbid'], 
             'lottery': ['!lotto', '!tix', '!buytix']}
 
         if self.arg_count == 1:
-            return f'type "info" or "syntax" after any command to learn more about it. here is a list of all help commands: !help {", !help ".join(help_dict.keys())}'
+            return f'type "info" or "syntax" after any command to learn more about it. here is a list of all help commands: !help, {", !help ".join(help_dict.keys())}'
         if self.args[1] not in help_dict.keys():
             return 'that help command does not exist'
 
-        return f'here is a list of all {self.args[1]} commands: !help {", ".join(help_dict[self.args[1]])}'
+        return f'here is a list of all {self.args[1]} commands: {", ".join(help_dict[self.args[1]])}'
 
 
     def emote_list(self):
@@ -266,7 +266,7 @@ class Commands:
     # converts 'hello world' to 'hElLo WoRlD'
         meme_string = '' # python strings are immutable so we can't edit them directly
         for char in ' '.join(self.args[1:]):
-            meme_string += char.upper() if util.rng(0, 1) == 1 else char # randomly capitalize each character
+            meme_string += char.upper() if util.rng(0, 1) == 1 else char.lower() # randomly capitalize each character
         return meme_string
 
 

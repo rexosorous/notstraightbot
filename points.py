@@ -41,13 +41,17 @@ class Points:
         return sorted(list(self.users.items()), key=lambda x: x[1].points, reverse=True)
         
 
-    def update_points(self, viewers = util.get_viewers()):
+    def update_points(self):
+        viewers = util.get_viewers()
         for v in viewers:
             if v in util.load_blacklist():
+                print(f'{v} in blacklist')
                 continue
             if v not in self.users:
+                print(f'{v} add user')
                 self.add_user(v)
             else:
+                print(f'{v} points added')
                 self.users[v].points += self.users[v].income
 
 

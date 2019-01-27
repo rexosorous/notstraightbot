@@ -101,7 +101,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             self.points.add_user(username)
         if e.arguments[0][:1] == '!':
             cmd_raw = e.arguments[0][1:]
-            print ('[' + username + '] ' + cmd_raw)
+            print(f'{username}: {e.arguments[0]}')
             self.do_command(e, cmd_raw)
         elif username not in util.load_blacklist():
             self.points.users[username].last_message = e.arguments[0]
@@ -115,10 +115,8 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
 
     def update_points(self):
-        counter = 0
         while True:
-            counter += 1
-            print (f'points given {counter}')
+            print('\n \n \n \n ADDING POINTS \n')
             self.points.update_points()
             self.points.save()
             sleep(15)
